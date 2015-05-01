@@ -190,237 +190,86 @@
 %%%% The following is a crazy TikZ slide combining tree/graph drawing
 %%%% code, etc.
 
-\colorlet{rvcolor1}{blue}%
-\colorlet{rvcolor2}{magenta}%
-\colorlet{rvcolor3}{red}%
-\colorlet{rvcolor4}{brown}%
-\colorlet{rvcolor5}{green!60!brown}%
-\newcommand{\rvdraw}[1]{rvcolor#1!80!black!80!white}%
-\newcommand{\rvfill}[1]{rvcolor#1!80!black!30!white}%
-\tikzstyle{rvball}=[circle, thick, draw=\rvdraw{#1}, top color=white,%
-  bottom color=\rvfill{#1}, inner sep=1.5pt, font=#1]
-\newcommand{\rvball}[2][font=\tiny]{\text{%
-    \tikz[overlay, baseline=(rv.base), right]%
-    \node[rvball=#2, #1] (rv) {#2};}}%
-%\newcommand{\rvball}[2][\tiny]{\text{%
-%    \tikz[overlay, baseline=(rv.base), right]%
-%    \node[rvball=#1] (rv) {#2};}}%
+\newcommand{\celldraw}[1]{#1!80!black!80!white}%
+\newcommand{\cellfill}[1]{#1!80!black!30!white}%
+
+% Basic style of a cell box.
+\tikzstyle{cellbox}=[rectangle, thick, draw=\celldraw{#1}, top color=white,%
+  bottom color=\cellfill{#1}, minimum width=2em, minimum height=1em,
+  inner sep=0]
+
+% The matrix style underlying graphs.
+\tikzstyle{graph}=[matrix, row sep=1pt, column sep=.5em, node distance=0pt,%
+  nodes={anchor=center}]
+
+% Basic style for variable labels.
+\tikzstyle{labelnode}=[font=\tiny, node distance=.6em, inner sep=1pt]
+
+% Basic cell.  The first argument is the name of the node (in TeX,
+% e.g. "xy"), the second one is its printed name (e.g. "n_{x, y}").
+% The third argument determines the color.  The optional argument
+% contains extra node parameters (e.g. minimum width=1em creates cell
+% that is less wide).
+\newcommand{\cell}[4][]{%
+  \node[rectangle, cellbox=#4, #1] (#2) {};% (#2-car)
+  \draw[draw=\celldraw{#4}, semithick] (#2.north) -- (#2.south);
+  \path (#2.west) -- coordinate[midway] (#2-car) (#2.center);%
+  \path (#2.east) -- coordinate[midway] (#2-cdr) (#2.center);%
+  \node[font=\tiny, below=of #2.south west, anchor=north west, inner sep=1pt]
+  {$n_{#3}$};}%
+
+% A (blue) cons cell with a circle in the "cdr" box.  Arguments are
+% the same as for \cell.
+\newcommand{\cons}[3][]{%
+  \cell[#1]{#2}{#3}{blue}%
+  \node[circle, fill=black, inner sep=.75pt] at (#2-cdr) {};}%
+
+% A shared cons cell (drawn in red).
+\newcommand{\scons}[3][]{%
+  \cell[#1]{#2}{#3}{red}%
+  \node[circle, fill=black, inner sep=.75pt] at (#2-cdr) {};}%
+
+% Variable label and edge. Arguments are position, name and label text.
+\newcommand{\vlabel}[3]{%
+  \node[labelnode, #1=of #2] {$#3$} edge (#2);}%
 
 \ifcompileTreeSlides
-\begin{frame}[fragile,t]%{Search trees}
-  \vspace{-0.5em}\uncover<2-6>{
+\begin{frame}[fragile,t]{Graph example}
+  \vspace{-0.5em}\uncover<2-4>{
   \begin{center}
-    \begin{tikzpicture}[xscale=0.8, semithick,
-      fail/.style={font=$\bot$},
-      failChild/.style={level distance=0.7cm, sibling distance=0.3cm},
-      failEdge/.style={dashed},
-      intl/.style={rvball=#1, label={center:#1}},
-      intlChild/.style={},
-      intlEdge/.style={},
-      leaf/.style={align=center, anchor=north},
-      leafEdge/.style={},
-      leafChild/.style={},
-      level distance=1cm,
-      level/.style={sibling distance=6cm/#1},
-      level 2/.style={sibling distance=4cm, onslide=<-2>{transparent}},
+    \begin{tikzpicture}[semithick,
+      level 2/.style={onslide=<-2>{transparent}},
       level 3/.style={onslide=<-3>{transparent}},
-      level 4/.style={sibling distance=1cm, onslide=<-4>{transparent}},
-      level 5/.style={sibling distance=0.3cm, onslide=<-5>{transparent}}]
-      \tiny
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
 
-      \node[intl={1}] {}
-      child[intlChild] {
-        node[intl={2}] {}
-        child[intlChild] {
-          node[intl={3}] {}
-          child[leafChild, sibling distance=1.2cm] {
-            node[leaf] {$true$\\0.135}
-            edge from parent[leafEdge] node[above left] {0.9}
-          }
-          child[intlChild, sibling distance=1cm] {
-            node[intl={4}] {}
-            child[leafChild] {
-              node[leaf] {$true$\\0.012}
-              edge from parent[leafEdge] node[above left] {0.8}
-            }
-            child[intlChild] {
-              node[intl={5}] {}
-              child[leafChild] {
-                node[leaf] {$true$\\0.0003}
-                edge from parent[leafEdge] node[above left] {0.1}
-              }
-              child[failChild] {
-                node[fail={6}] {}
-                edge from parent[failEdge] node[above right] {0.9}
-              }
-              edge from parent[intlEdge] node[above right] {0.2}
-            }
-            edge from parent[intlEdge] node[above right] {0.1}
-          }
-          edge from parent[intlEdge] node[above left] {0.5}
-        }
-        child[intlChild, sibling distance=0cm] {
-          node[intl={3}] {}
-          child[leafChild, sibling distance=0.3cm] {
-            node[leaf] {$true$\\0.135}
-            edge from parent[leafEdge] node[above left] {0.9}
-          }
-          child[intlChild] {
-            node[intl={4}] {}
-            child[intlChild] {
-              node[intl={5}] {}
-              child[leafChild] {
-                node[leaf] {$true$\\0.0012}
-                edge from parent[leafEdge] node[above left] {0.1}
-              }
-              child[failChild] {
-                node[fail={7}] {}
-                edge from parent[failEdge] node[above right] {0.9}
-              }
-              edge from parent[intlEdge] node[above left] {0.8}
-            }
-            child[intlChild] {
-              node[intl={5}] {}
-              child[leafChild] {
-                node[leaf] {$true$\\0.0003}
-                edge from parent[leafEdge] node[above left] {0.1}
-              }
-              child[failChild] {
-                node[fail={8}] {}
-                edge from parent[failEdge] node[above right] {0.9}
-              }
-              edge from parent[intlEdge] node[above right] {0.2}
-            }
-            edge from parent[intlEdge] node[above right] {0.1}
-          }
-          edge from parent[intlEdge] node[above right] {0.5}
-        }
-        edge from parent[intlEdge] node[above left] {0.3}
-      }
-      child[intlChild] {
-        node[intl={2}] {}
-        child[intlChild] {
-          node[intl={3}] {}
-          child[intlChild] {
-            node[intl={4}] {}
-            child[leafChild] {
-              node[leaf] {$false$\\0.252}
-              edge from parent[leafEdge] node[above left] {0.8}
-            }
-            child[intlChild] {
-              node[intl={5}] {}
-              child[leafChild] {
-                node[leaf] {$false$\\0.0063}
-                edge from parent[leafEdge] node[above left] {0.1}
-              }
-              child[failChild] {
-                node[fail={9}] {}
-                edge from parent[failEdge] node[above right] {0.9}
-              }
-              edge from parent[intlEdge] node[above right] {0.2}
-            }
-            edge from parent[intlEdge] node[above left] {0.9}
-          }
-          child[intlChild] {
-            node[intl={4}] {}
-            child[leafChild] {
-              node[leaf] {$false$\\0.028}
-              edge from parent[leafEdge] node[above left] {0.8}
-            }
-            child[intlChild] {
-              node[intl={5}] {}
-              child[leafChild] {
-                node[leaf] {$false$\\0.0007}
-                edge from parent[leafEdge] node[above left] {0.1}
-              }
-              child[failChild] {
-                node[fail={10}] {}
-                edge from parent[failEdge] node[above right] {0.9}
-              }
-              edge from parent[intlEdge] node[above right] {0.2}
-            }
-            edge from parent[intlEdge] node[above right] {0.1}
-          }
-          edge from parent[intlEdge] node[above left] {0.5}
-        }
-        child[intlChild] {
-          node[intl={3}] {}
-          child[intlChild] {
-            node[intl={4}] {}
-            child[intlChild] {
-              node[intl={5}] {}
-              child[leafChild] {
-                node[leaf] {$false$\\0.0252}
-                edge from parent[leafEdge] node[above left] {0.1}
-              }
-              child[failChild] {
-                node[fail={11}] {}
-                edge from parent[failEdge] node[above right] {0.9}
-              }
-              edge from parent[intlEdge] node[above left] {0.8}
-            }
-            child[intlChild] {
-              node[intl={5}] {}
-              child[leafChild] {
-                node[leaf] {$false$\\0.0063}
-                edge from parent[leafEdge] node[above left] {0.1}
-              }
-              child[failChild] {
-                node[fail={12}] {}
-                edge from parent[failEdge] node[above right] {0.9}
-              }
-              edge from parent[intlEdge] node[above right] {0.2}
-            }
-            edge from parent[intlEdge] node[above left] {0.9}
-          }
-          child[intlChild] {
-            node[intl={4}] {}
-            child[intlChild] {
-              node[intl={5}] {}
-              child[leafChild] {
-                node[leaf] {$false$\\0.0028}
-                edge from parent[leafEdge] node[above left] {0.1}
-              }
-              child[failChild] {
-                node[fail={13}] {}
-                edge from parent[failEdge] node[above right] {0.9}
-              }
-              edge from parent[intlEdge] node[above left] {0.8}
-            }
-            child[intlChild] {
-              node[intl={5}] {}
-              child[leafChild] {
-                node[leaf] {$false$\\0.0007}
-                edge from parent[leafEdge] node[above left] {0.1}
-              }
-              child[failChild] {
-                node[fail={14}] {}
-                edge from parent[failEdge] node[above right] {0.9}
-              }
-              edge from parent[intlEdge] node[above right] {0.2}
-            }
-            edge from parent[intlEdge] node[above right] {0.1}
-          }
-          edge from parent[intlEdge] node[above right] {0.5}
-        }
-        edge from parent[intlEdge] node[above right] {0.7}
+      % Matrix for arranging graph nodes.  You can add extra
+      % horizontal or vertical space in brackets after \& and \\.
+      \matrix[graph, level 2] (g1) %
+      {
+        \cons[minimum width=1em]{x}{\{x\}} \& \\
+        \cons{xt1}{\{x, t_1\}} \& \scons{e}{\emptyset}\\[.5em] % <-- extra space
+        \cons{y}{\{y\}} \& \cons{t}{\{t\}}\\
       };
+
+      % Edges.
+      \path[->] % Multiple edges.
+      (x-cdr) edge (e.north west)
+      (xt1-cdr) edge (e)
+      (y-cdr) edge (t);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);  % Loop.
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+      \vlabel{yshift=1ex,left}{xt1}{x}
+      \vlabel{yshift=-1ex,left}{xt1}{t_1}
+      \vlabel{left}{y}{y}
+      \vlabel{right}{t}{t}
     \end{tikzpicture}
   \end{center}}
-  \vspace{-1em}
-  \begin{lstscalasmall}
-  def grassModel: Rand[Boolean] = {
-    val rain       = flip(0.3) $\rvball{1}$
-    val sprinkler  = flip(0.5) $\rvball{2}$
-    val grassIsWet =
-   $\rvball{3}$   flip(0.9) && rain || $\rvball{4}%
-  $   flip(0.8) && sprinkler || $\rvball{5}%
-  $   flip(0.1)
-    if (grassIsWet) rain else never
-  }
-  \end{lstscalasmall}
 \end{frame}
 \fi
+
 \begin{frame}[fragile]{Some citations and maths}
   The \emph{Probability Monad} is a variant of the @List@
   monad.\footnote{See e.g.\ \cite{RamseyP2002popl,Gibbons2012utp}}
