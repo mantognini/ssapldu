@@ -48,9 +48,17 @@
 \usepackage[scaled]{beramono}
 %\usepackage{inconsolata}
 
+\colorlet{Insertion}{NavyBlue}
+\colorlet{Modification}{ForestGreen}
+
 % Scala listings.  Use colored Scala style by default.
 \usepackage{lstscala}
-\lstset{style=scala-color,basicstyle=\footnotesize\tt}
+\lstset{
+  style=scala-color,
+  basicstyle=\footnotesize\tt,
+  otherkeywords={do,od},
+  moredelim=**[is][\color{Insertion}]{@}{@},
+  moredelim=**[is][\color{Modification}]{>}{<}}
 \lstnewenvironment{lstscalasmall}{%
   \lstset{style=scala-color,basicstyle=\scriptsize\tt}}{}
 
@@ -71,6 +79,7 @@
   \only<#1>{\pgfkeysalso{#2}} % \pgfkeysalso doesn't change the path
 }}
 
+\newcommand{\TODO}[1]{\texttt{\textcolor{YellowOrange}{(#1)}}}
 
 %%%% Custom macros %%%%
 \newif\ifcompileTreeSlides
@@ -156,34 +165,65 @@
 % \subsection*{}
 
 \begin{frame}[fragile]{Motivation}
-  Example of items and \verb!\pause!.
-  \begin{itemize}
-  \item The first item.\pause
-  \item Another item.
-  \end{itemize}
-  \vspace{1em}
+  Analyse the shape of heap allocated data structure
 
-  Text with emphasis is \emph{colored}.
+  \vspace{1em}
+  
+  Verify that a program preserves shape properties such as
   \begin{itemize}
-  \item Some inline code: @val x = 10@
-  \item Foo!
+  \item "list-ness"
+  \item "circular list-ness"
+  \item "tree-ness" \TODO{is it actually supported???}
   \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{A code example}
-  \begin{lstlisting}
-  def grassModel: Rand[Boolean] = {
-    val rain       = flip(0.3)
-    val sprinkler  = flip(0.5)
-    val grassIsWet =
-      flip(0.9) && rain      ||
-      flip(0.8) && sprinkler ||
-      flip(0.1)
-    if (grassIsWet) rain else never
-  }
-  \end{lstlisting}
-  \emph{Intuition:} the program is a \emph{stochastic process}
-  generating values according to some \emph{probability distribution}.
+\begin{frame}[fragile]{List Reversal: Normalisation}
+  \begin{columns}[T]
+	  \column{.5\textwidth}
+	  \begin{onlyenv}<1>
+	  \begin{lstlisting}[mathescape=true]
+	  // x point to an unshared list
+	  y := nil
+	  while x $ \neq $ nil do
+	  
+	    t := y
+	    
+	    y := x
+	    
+	    
+	    
+	    x := x.cdr
+	    
+	    y.cdr := t
+	  od
+	  
+	  t := nil
+	  \end{lstlisting}
+	  \end{onlyenv}
+	  \pause
+	  
+	  \begin{lstlisting}[mathescape=true]
+	  // x point to an unshared list
+	  y := nil
+	  while x $ \neq $ nil do
+	    @t := nil@
+	    t := y
+	    @y := nil@
+	    y := x
+	    @t$\color{Insertion}_1$ := nil@
+	    @t$\color{Insertion}_1$ := x.cdr@
+	    @x := nil@
+	    >x := t$\color{Modification}_1$<
+	    @y.cdr := nil@
+	    y.cdr := t
+	  od
+	  @t$\color{Insertion}_1$ := nil@
+	  t := nil
+	  \end{lstlisting}
+	  
+	  \column{.5\textwidth}
+	  \TODO{Fig 1. (c)}
+  \end{columns}
 \end{frame}
 
 
