@@ -216,57 +216,86 @@
   \path (#2.west) -- coordinate[midway] (#2-car) (#2.center);%
   \path (#2.east) -- coordinate[midway] (#2-cdr) (#2.center);%
   \node[font=\tiny, below=of #2.south west, anchor=north west, inner sep=1pt]
-  {$n_{#3}$};}%
+  {$#3$};}%
 
-% A (blue) cons cell with a circle in the "cdr" box.  Arguments are
-% the same as for \cell.
-\newcommand{\cons}[3][]{%
-  \cell[#1]{#2}{#3}{blue}%
+% A basic cons cell with a circle in the "cdr" box.  Arguments are the
+% same as for \cell.
+\newcommand{\cons}[4][]{%
+  \cell[#1]{#2}{#3}{#4}%
   \node[circle, fill=black, inner sep=.75pt] at (#2-cdr) {};}%
 
-% A shared cons cell (drawn in red).
-\newcommand{\scons}[3][]{%
-  \cell[#1]{#2}{#3}{red}%
-  \node[circle, fill=black, inner sep=.75pt] at (#2-cdr) {};}%
+% A concrete (green) cons cell.
+\newcommand{\ccons}[3][]{\cons[#1]{#2}{#3}{green}}
 
-% Variable label and edge. Arguments are position, name and label text.
+% An abstract (blue) cons cell.
+\newcommand{\acons}[3][]{\cons[#1]{#2}{n_{#3}}{blue}}
+
+% A shared (red) cons cell.
+\newcommand{\scons}[3][]{\cons[#1]{#2}{n_{#3}}{red}}
+
+% Variable label and edge. Arguments are position, node and label text.
 \newcommand{\vlabel}[3]{%
   \node[labelnode, #1=of #2] {$#3$} edge (#2);}%
 
 \ifcompileTreeSlides
 \begin{frame}[fragile,t]{Graph example}
-  \vspace{-0.5em}\uncover<2-4>{
+  \vspace{-0.5em}\uncover<2-4>{ % this diagram is visible in slides 2-4.
   \begin{center}
     \begin{tikzpicture}[semithick,
+      % The "level X" styles below can be used to uncover graphs or
+      % parts thereof across slides.
       level 2/.style={onslide=<-2>{transparent}},
       level 3/.style={onslide=<-3>{transparent}},
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
       \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
 
-      % Matrix for arranging graph nodes.  You can add extra
+
+      % Matrix for arranging graph naodes.  You can set the overall
+      % spacing through "row sep" and "column sep" or add and remove
       % horizontal or vertical space in brackets after \& and \\.
-      \matrix[graph, level 2] (g1) %
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
       {
-        \cons[minimum width=1em]{x}{\{x\}} \& \\
-        \cons{xt1}{\{x, t_1\}} \& \scons{e}{\emptyset}\\[.5em] % <-- extra space
-        \cons{y}{\{y\}} \& \cons{t}{\{t\}}\\
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&[-.5em] % <-- remove space
+        \ccons[minimum width=1em]{l3}{l_3} \\
       };
 
-      % Edges.
-      \path[->] % Multiple edges.
-      (x-cdr) edge (e.north west)
-      (xt1-cdr) edge (e)
-      (y-cdr) edge (t);
-      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);  % Loop.
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
 
       % Variable egdes.
-      \vlabel{left}{x}{x}
-      \vlabel{yshift=1ex,left}{xt1}{x}
-      \vlabel{yshift=-1ex,left}{xt1}{t_1}
-      \vlabel{left}{y}{y}
-      \vlabel{right}{t}{t}
+      \vlabel{left}{l1}{x}
+
+      % This second graph won't be shown until slide 3.
+      \begin{scope}[yshift=-4em, level 2]
+        \matrix[graph] (g2) %
+        {
+          \acons{x}{\{x\}} \& \\
+          \acons{xt1}{\{x, t_1\}} \&
+          \scons{e}{\emptyset}\\[.5em] % <-- extra space
+          \acons{y}{\{y\}} \& \acons{t}{\{t\}}\\
+        };
+
+        % Selector edges.
+        \path[->] % Normal edges.
+        (x-cdr) edge (e.north west)
+        (xt1-cdr) edge (e)
+        (y-cdr) edge (t);
+        % A loop.  Not visible until slide 4.
+        \draw[->, level 3] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+        % Variable egdes.
+        \vlabel{left}{x}{x}
+        \vlabel{yshift=1ex,left}{xt1}{x}
+        \vlabel{yshift=-1ex,left}{xt1}{t_1}
+        \vlabel{left}{y}{y}
+        \vlabel{right}{t}{t}
+      \end{scope}
     \end{tikzpicture}
   \end{center}}
+  The diagram above won't show up until slide 2.
 \end{frame}
 \fi
 
