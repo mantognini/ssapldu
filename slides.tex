@@ -50,6 +50,9 @@
 
 \colorlet{Insertion}{NavyBlue}
 \colorlet{Modification}{ForestGreen}
+\colorlet{VariableEdge}{Cyan}
+\colorlet{SelectorEdge}{Plum}
+
 
 % Scala listings.  Use colored Scala style by default.
 \usepackage{lstscala}
@@ -221,6 +224,8 @@
 	  t := nil
 	  \end{lstlisting}
 	  
+	  \TODO{properly align codes}
+	  
 	  \column{.5\textwidth}
 	  \TODO{Fig 1. (c)}
   \end{columns}
@@ -278,6 +283,66 @@
   \node[labelnode, #1=of #2] {$#3$} edge (#2);}%
 
 \ifcompileTreeSlides
+
+
+
+\begin{frame}[fragile]{Shape-Graph $SG = \langle E_v, E_s \rangle$}
+
+	\textit{Not} to be confused by a program control flow graph $G = (V, A)$
+	
+	%\begin{center}
+	%$ SG \neq G $
+	%\end{center}
+	
+	\vspace{1em}
+	What is a \textbf{shape-graph}?
+	
+	\begin{itemize}
+	\item directed graph with nodes and edges
+	\item nodes are called \textcolor{Green}{\textbf{shape-nodes}}
+		\begin{itemize}
+		\item[$\circ$] runtime locations, i.e. heap memory, or \textit{cons-cells}
+		\item[$\circ$] implicitly defined by edges and $shape\_nodes(SG)$
+		\end{itemize}
+	\item edges are divided into 2 categories:
+		\begin{itemize}
+    	\item[$\circ$] \textcolor{VariableEdge}{$E_v$: \textbf{variable-edges}} of the form $ \left[x, n\right] $
+    	\item[$\circ$] \textcolor{SelectorEdge}{$E_s$: \textbf{selector-edges}} of the form $ \langle s, sel, t \rangle $
+		\end{itemize}
+	\end{itemize}
+	
+	\begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      % Matrix for arranging graph nodes.  You can set the overall
+      % spacing through "row sep" and "column sep" or add and remove
+      % horizontal or vertical space in brackets after \& and \\.
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge[SelectorEdge] (l2)
+      (l2-cdr) edge[SelectorEdge] (l3);
+
+      % Variable egdes.
+      %\vlabel{left}{l1}{x} % need color on edge:
+      \node[labelnode, left=of l1] {$x$} edge[VariableEdge] (l1);
+    \end{tikzpicture}
+  \end{center}
+	
+	$n, s, t, l_1, l_2$ and $l_3$ are shape-nodes, $x$ a program variable and $sel \in \left\{ car, cdr \right\}$
+
+\end{frame}
+
+
+
 \begin{frame}[fragile,t]{Graph example}
   \vspace{-0.5em}\uncover<2-4>{ % this diagram is visible in slides 2-4.
   \begin{center}
