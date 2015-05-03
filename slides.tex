@@ -84,6 +84,8 @@
 
 \newcommand{\TODO}[1]{\texttt{\textcolor{YellowOrange}{(#1)}}}
 
+\newcommand\defeq{\stackrel{\mathclap{\tiny\mbox{def}}}{=}}
+
 %%%% Custom macros %%%%
 \newif\ifcompileTreeSlides
 %\compileTreeSlidesfalse
@@ -339,6 +341,82 @@
 	
 	$n, s, t, l_1, l_2$ and $l_3$ are shape-nodes, $x$ a program variable and $sel \in \left\{ car, cdr \right\}$
 
+\end{frame}
+
+\begin{frame}[fragile]{$DSG$: Deterministic Shape-Graph}
+  $E_v$ and $E_s$ are also used as functions:
+  \begin{itemize}
+  \item $E_v(x) \defeq \left\{ n \mid \left[x, n\right] \in E_v \right\}$
+  \item $E_s(s, sel) \defeq \left\{ t \mid \langle s, sel, t \rangle \in E_s \right\}$
+  \end{itemize}
+  
+  \vspace{1em}
+  
+  A shape-graph is \textbf{deterministic} if
+  \begin{enumerate}
+  \item no variable points to more than one node: $ |E_v(*)| \leq 1$
+  \item no node has a selector pointing to more than one node: $ |E_s(*, *)| \leq 1$ 
+  \end{enumerate}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{$gc$: Garbage Collection}
+  The $gc$ function removes runtime location that are not reachable from any program variable:
+  
+  \vspace{1em}
+  
+  $ gc: SG \to SG $\\
+  $ gc\left(\langle E_v, E_s \rangle \right) \defeq \langle E_v, E'_s \rangle $ where $ E'_s \subseteq E_s $ and $ \langle s, sel, t \rangle \in E'_s $ if and only if there exists $ \left[ x, r \right] \in E_v $ such that there is a path of selector-edges in $ E_s $ from $r$ to $s$.
+	
+	\begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \\
+        \ccons[minimum width=1em]{l3}{l_3} \&
+        \ccons[minimum width=1em]{l4}{l_4} \&
+        \ccons[minimum width=1em]{l5}{l_5} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l5)
+      (l3-cdr) edge (l4)
+      (l4-cdr) edge (l5);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+    \end{tikzpicture}
+  
+    becomes
+    \vspace{0.5em}
+  
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l5}{l_5} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l5);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+    \end{tikzpicture}
+  \end{center}
 \end{frame}
 
 
