@@ -42,7 +42,7 @@
 \usepackage{mathcommon}
 
 % More math symbols (e.g. double-brackets: \llbracket, \rrbracket)
-%\usepackage{stmaryrd}
+\usepackage{stmaryrd}
 
 % A nice monospace font for listings, etc.
 \usepackage[scaled]{beramono}
@@ -85,6 +85,9 @@
 \newcommand{\TODO}[1]{\texttt{\textcolor{YellowOrange}{(#1)}}}
 
 \newcommand\defeq{\stackrel{\mathclap{\tiny\mbox{def}}}{=}}
+
+\newcommand{\transformer}[2]{$\llbracket$ \lstinline@#1@ $\rrbracket_{#2}$}
+\newcommand{\transformerDSG}[1]{\transformer{#1}{DSG}}
 
 %%%% Custom macros %%%%
 \newif\ifcompileTreeSlides
@@ -360,7 +363,6 @@
 \end{frame}
 
 
-
 \begin{frame}[fragile]{$gc$: Garbage Collection}
   The $gc$ function removes runtime location that are not reachable from any program variable:
   
@@ -419,6 +421,219 @@
   \end{center}
 \end{frame}
 
+
+\begin{frame}[fragile]{$DSG$ transformers}
+  A program statement is represented as a transform function on $DSG$, denoted \transformerDSG{st}.
+  
+  \vspace{1em}  
+  
+  Thanks to program normalisation, there are only 6 statements and they are simple:
+  
+  \begin{enumerate}
+  \item \transformerDSG{x := nil}
+  \item \transformerDSG{x.sel := nil}
+  \item \transformerDSG{x := new}
+  \item \transformerDSG{x := y}
+  \item \transformerDSG{x := y.sel}
+  \item \transformerDSG{x.sel := y}
+  \end{enumerate}
+\end{frame}
+
+
+\begin{frame}[fragile]{$DSG$ transformers: 1}
+  \transformerDSG{x := nil}$ \left( \langle E_v, E_s \rangle \right) $ \\
+  \hspace{5em} $ \defeq \langle E_v - \left\{\left[ \mbox{x}, * \right]\right\}, E_s \rangle $
+  
+  \vspace{1em}
+
+  Let $ \langle E_v, E_s \rangle $ be\\
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+    \end{tikzpicture}
+  \end{center}
+
+  \transformerDSG{x := nil} results in, after $gc$:
+  
+%  \begin{center}
+%    \begin{tikzpicture}[semithick,
+%      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+%      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+%
+%      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+%      {
+%        \ccons[minimum width=1em]{l1}{l_1} \&
+%        \ccons[minimum width=1em]{l2}{l_2} \&
+%        \ccons[minimum width=1em]{l3}{l_3} \\
+%      };
+%
+%      % Selector edges.
+%      \path[->]
+%      (l1-cdr) edge (l2)
+%      (l2-cdr) edge (l3);
+%
+%      % Variable egdes.
+%      \vlabel{above}{l2}{y}
+%    \end{tikzpicture}
+%  \end{center}
+%  
+%  and after $gc$:
+
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \&                                 \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{above}{l2}{y}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+
+\begin{frame}[fragile]{$DSG$ transformers: 2}
+  \transformerDSG{x.sel := nil}$ \left( \langle E_v, E_s \rangle \right) $ \\
+  \hspace{5em} $ \defeq \langle E_v, E_s - \left\{ \langle \mbox{s}, \mbox{sel}, * \rangle \mid \left[x,s\right] \in E_v \right\} \rangle $
+   
+  \vspace{1em}
+   
+  Let $ \langle E_v, E_s \rangle $ be\\
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+    \end{tikzpicture}
+  \end{center}
+  
+  \transformerDSG{x.cdr := nil} results in, after $gc$:
+  
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{$DSG$ transformers: 3}
+  \transformerDSG{x := new}$ \left( \langle E_v, E_s \rangle \right) $ \\
+  \hspace{5em} $ \defeq \langle E_v \cup \left\{ \left[ \mbox{x}, \mbox{n}_{new} \right] \right\}, E_s \rangle $
+   
+  \vspace{1em}
+   
+  Let $ \langle E_v, E_s \rangle $ be\\
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \&
+        \& \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+    \end{tikzpicture}
+  \end{center}
+  
+  \transformerDSG{z := new} results in, after $gc$:
+  
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \&
+        \ccons[minimum width=1em]{l4}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+      \vlabel{above}{l4}{z}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
 
 
 \begin{frame}[fragile,t]{Graph example}
