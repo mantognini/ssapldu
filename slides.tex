@@ -312,6 +312,10 @@
 \newcommand{\vlabelwy}[3]{%
   \node[labelnode, yshift=#3, left=of #1] {$#2$} edge ([yshift=#3]#1.west);}%
 
+% example: \vlabelnx{xy}{x}{1mm}
+\newcommand{\vlabelnx}[3]{%
+  \node[labelnode, xshift=#3, above=of #1] {$#2$} edge ([xshift=#3]#1.north);}%
+
 % Draws a "transformer" arrow.
 \newcommand{\transarrow}[3]{%
   \draw[trans] ($(#1.east)+(1em,0)$) -- node[above]{\normalsize #2}
@@ -1341,6 +1345,141 @@
 \end{frame}
 
 % 8. some examples for "abstract transformation rules" [st]SSG
+%   - variable assignment
+\begin{frame}{Abstract interpretation -- examples (cont.)}
+
+  \vspace{.5em}
+  Variable assignment.
+  \vspace{.5em}
+
+  \begin{center}
+    \begin{tikzpicture}[semithick, ampersand replacement=\&,%
+      every edge/.append style={->}, >=latex]
+      \Large
+
+      %%% DSG 1 (top left) %%%
+      \matrix[graph, row sep=1ex, left delimiter=\{,
+      right delimiter=\}] (d1) at (-6em, 4em)
+      {
+        \tcell[minimum width=.25em, minimum height=.25em] \\
+        \&
+        \ccons[minimum width=1em]{l1-1}{l_1} \&
+        \ccons[minimum width=1em]{l2-1}{l_2} \&
+        \ccons[minimum width=1em]{l3-1}{l_3} \&
+        \ccons[minimum width=1em]{l4-1}{l_4} \\
+        \&
+        \ccons[minimum width=1em]{l1-2}{l_1} \&
+        \ccons[minimum width=1em]{l2-2}{l_2} \&
+        \ccons[minimum width=1em]{l3-2}{l_3} \&
+        \ccons[minimum width=1em]{l4-2}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-1-cdr) edge (l2-1)
+      (l2-1-cdr) edge (l3-1)
+      (l3-1-cdr) edge (l4-1)
+      (l1-2-cdr) edge (l2-2)
+      (l2-2-cdr) edge (l3-2)
+      (l3-2-cdr) edge (l4-2);
+
+      % Variable egdes.
+      \vlabel{left}{l1-1}{x}
+      \vlabel{above}{l2-1}{y}
+      \vlabelwy{l1-2}{x}{.5ex}
+      \vlabelwy{l1-2}{y}{-.5ex}
+
+      %%% SSG 1 (top right) %%%
+      \matrix[graph] (s1) at (6em, 4em)
+      {
+        \acons[minimum width=1.5em]{x}{\{x\}} \\
+        \acons[minimum width=1.5em]{xy}{\{x,y\}} \&
+        \acons[minimum width=1.5em]{y}{\{y\}} \&
+        \acons[minimum width=1.5em]{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (x-cdr) edge (y)
+      (xy-cdr) edge (y)
+      (y-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+      \vlabel{above}{y}{y}
+      \vlabelwy{xy}{x}{.5ex}
+      \vlabelwy{xy}{y}{-.5ex}
+
+      %%% DSG 2 (bottom left) %%%
+      \matrix[graph, row sep=1ex, left delimiter=\{,
+      right delimiter=\}] (d2) at (-6em, -4em)
+      {
+        \tcell[minimum width=.25em, minimum height=.25em] \\
+        \&
+        \ccons[minimum width=1em]{l1-1}{l_1} \&
+        \ccons[minimum width=1em]{l2-1}{l_2} \&
+        \ccons[minimum width=1em]{l3-1}{l_3} \&
+        \ccons[minimum width=1em]{l4-1}{l_4} \\
+        \&
+        \ccons[minimum width=1em]{l1-2}{l_1} \&
+        \ccons[minimum width=1em]{l2-2}{l_2} \&
+        \ccons[minimum width=1em]{l3-2}{l_3} \&
+        \ccons[minimum width=1em]{l4-2}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-1-cdr) edge (l2-1)
+      (l2-1-cdr) edge (l3-1)
+      (l3-1-cdr) edge (l4-1)
+      (l1-2-cdr) edge (l2-2)
+      (l2-2-cdr) edge (l3-2)
+      (l3-2-cdr) edge (l4-2);
+
+      % Variable egdes.
+      \vlabel{left}{l1-1}{x}
+      \vlabelnx{l2-1}{y}{-.5ex}
+      \vlabelnx{l2-1}{z}{.5ex}
+      \vlabelwy{l1-2}{x}{.75ex}
+      \vlabel{left}{l1-2}{y}
+      \vlabelwy{l1-2}{z}{-.75ex}
+
+      %%% SSG 2 (bottom right) %%%
+      \matrix[graph] (s2) at (6em, -4em)
+      {
+        \tcell[minimum width=1.5em, minimum height=0.25em] \\
+        \acons[minimum width=1.5em]{x}{\{x\}} \\
+        \acons[minimum width=1.5em]{xyz}{\{x,y,z\}} \&
+        \acons[minimum width=1.5em]{yz}{\{y,z\}} \&
+        \acons[minimum width=1.5em]{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (x-cdr) edge (yz)
+      (xyz-cdr) edge (yz)
+      (yz-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+      \vlabelnx{yz}{y}{-.5ex}
+      \vlabelnx{yz}{z}{.5ex}
+      \vlabelwy{xyz}{x}{.75ex}
+      \vlabel{left}{xyz}{y}
+      \vlabelwy{xyz}{z}{-.75ex}
+
+      %%% Transformer arrows %%%
+      \vtransarrow{d1}{\transformerDSG{z := y}}{d2}
+      \transarrow{d1}{$\alpha$}{s1}
+      \transarrow{d2}{$\alpha$}{s2}
+      \vtransarrow[right]{s1}{\transformerSSG{z := y}}{s2}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% 8. some examples for "abstract transformation rules" [st]SSG
 %   - strong nullification
 \begin{frame}{Abstract interpretation -- examples (cont.)}
 
@@ -1448,8 +1587,7 @@
       };
 
       % Selector edges.
-      \path[->]
-      (y-cdr) edge (e);
+      \path[->] (y-cdr) edge (e);
       \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
 
       % Variable egdes.
