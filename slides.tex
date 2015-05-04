@@ -292,6 +292,10 @@
 \newcommand{\vlabel}[3]{%
   \node[labelnode, #1=of #2] {$#3$} edge (#2);}%
 
+% example: \vlabelwy{xy}{x}{1mm}  
+\newcommand{\vlabelwy}[3]{%
+  \node[labelnode, yshift=#3, left=of #1] {$#2$} edge ([yshift=#3]#1.west);}%
+
 \ifcompileTreeSlides
 
 
@@ -848,6 +852,235 @@
 
 
 % TODO insert more slides here
+
+
+
+\begin{frame}[fragile]{Sharing}
+  \only<1>{
+  
+  From $v_1$ to $v_{11}$ \textit{without entering} the loop. \\
+  Executing \transformer{e.cdr := nil}.
+  \vspace{1.5em} % TODO need better alignment (vertical & horizontal) 
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+%      level 1/.style={onslide=<-0>{transparent}},
+%      level 2/.style={onslide=<-1>{transparent}},
+%      level 3/.style={onslide=<-2>{transparent}},
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large
+      
+      % Fig. 8/9, at vertex v11 (before) when loop not executed:
+%      \begin{scope}[level 1]
+	      \matrix[graph, column sep=1em] (g1)
+	      {
+	         \&\&            \&                      \& \acons{t}{\{t\}} \& \acons{phi}{\emptyset} \\
+	         \&\&            \& \acons{xy}{\{x, y\}} \& \acons{e}{\{e\}} \&                        \\
+	      };
+	
+	      % Selector edges.
+	      \path[->]
+	      (t-cdr) edge (phi)
+	      (xy-cdr) edge (t);
+	      % loop for phi
+	      \draw[->] (phi-cdr) -| ++(1em, 1em) -| (phi.north);
+	
+	      % Variable egdes.
+	      \vlabelwy{xy}{x}{1.5mm}
+	      \vlabelwy{xy}{y}{-1.5mm}
+	      \vlabelwy{t}{t}{1.5mm}
+	      \vlabelwy{e}{e}{0mm}
+%      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  }
+  
+  \only<2>{
+  
+  From $v_1$ to $v_{11}$ \textit{through} the loop. \\
+  Executing \transformer{e.cdr := nil}.
+  
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+%      level 1/.style={onslide=<-0>{transparent}},
+%      level 2/.style={onslide=<-1>{transparent}},
+%      level 3/.style={onslide=<-2>{transparent}},
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large
+      
+      % Fig. 8/9, at vertex v11 (before) when loop is executed:
+%      \begin{scope}[level 1]
+	      \matrix[graph, column sep=1em] (g1)
+	      {
+	        \acons{x}{\{x\}} \& \acons{yz}{\{y, z\}} \& \acons{t}{\{t\}} \& \acons{phi}{\emptyset} \\
+	                         \&                      \& \acons{e}{\{e\}} \&                        \\
+	      };
+	      
+	
+	      % Selector edges.
+	      \path[->]
+	      (t-cdr) edge (phi)
+	      (x-cdr) edge (yz)
+	      (yz-cdr) edge (t);
+	      % loops
+	      \draw[->] (x-cdr) -| ++(0, 2em) -| ([xshift=-1ex]phi.north);
+	      \draw[->] (phi-cdr) -| ++(1em, 1em) -| (phi.north);
+	      \draw[->] (phi-cdr) -| ++(0, 1.5em) -| (yz.north);
+	      \draw[->] (t-cdr) -| ++(0, 1em) -| ([xshift=1ex]yz.north);
+	
+	      % Variable egdes.
+	      \vlabelwy{x}{x}{0mm}
+	      \vlabelwy{yz}{y}{1.5mm}
+	      \vlabelwy{yz}{z}{-1.5mm}
+	      \vlabelwy{t}{t}{1.5mm}
+	      \vlabelwy{e}{e}{0mm}
+%      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  }
+  
+  \only<3>{
+  
+  From $v_1$ to $v_{11}$ by all possible paths. \\
+  Executing \transformer{e.cdr := nil}.
+  
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+%      level 1/.style={onslide=<-0>{transparent}},
+%      level 2/.style={onslide=<-1>{transparent}},
+%      level 3/.style={onslide=<-2>{transparent}},
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large
+      
+      % Fig. 8/9, at vertex v11 (before) for all paths:
+%      \begin{scope}[level 1]
+	      \matrix[graph, column sep=1em] (g1)
+	      {
+	        \acons{x}{\{x\}} \& \acons{yz}{\{y, z\}} \& \acons{t}{\{t\}} \& \acons{phi}{\emptyset} \\
+	                         \& \acons{xy}{\{x, y\}} \& \acons{e}{\{e\}} \&                        \\
+	      };
+	      
+	
+	      % Selector edges.
+	      \path[->]
+	      (t-cdr) edge (phi)
+	      (x-cdr) edge (yz)
+	      (xy-cdr) edge (t)
+	      (yz-cdr) edge (t);
+	      % loops
+	      \draw[->] (x-cdr) -| ++(0, 2em) -| ([xshift=-1ex]phi.north);
+	      \draw[->] (phi-cdr) -| ++(1em, 1em) -| (phi.north);
+	      \draw[->] (phi-cdr) -| ++(0, 1.5em) -| (yz.north);
+	      \draw[->] (t-cdr) -| ++(0, 1em) -| ([xshift=1ex]yz.north);
+	
+	      % Variable egdes.
+	      \vlabelwy{x}{x}{0mm}
+	      \vlabelwy{xy}{x}{1.5mm}
+	      \vlabelwy{xy}{y}{-1.5mm}
+	      \vlabelwy{yz}{y}{1.5mm}
+	      \vlabelwy{yz}{z}{-1.5mm}
+	      \vlabelwy{t}{t}{1.5mm}
+	      \vlabelwy{e}{e}{0mm}
+%      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  }
+  
+  \only<4>{
+
+  From $v_1$ to $v_{12}$ by all possible paths. \\
+  Executing \transformer{e.cdr := t}.
+  
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+%      level 1/.style={onslide=<-0>{transparent}},
+%      level 2/.style={onslide=<-1>{transparent}},
+%      level 3/.style={onslide=<-2>{transparent}},
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large
+      
+      % Fig. 8/9, at vertex v12 (before) for all paths:
+%      \begin{scope}[level 1]
+	      \matrix[graph, column sep=1em] (g1)
+	      {
+	        \acons{x}{\{x\}} \& \acons{yz}{\{y, z\}} \& \scons{t}{\{t\}} \& \acons{phi}{\emptyset} \\
+	                         \& \acons{xy}{\{x, y\}} \& \acons{e}{\{e\}} \&                        \\
+	      };
+	      
+	
+	      % Selector edges.
+	      \path[->]
+	      (t-cdr) edge (phi)
+	      (x-cdr) edge (yz)
+	      (xy-cdr) edge (t)
+	      (yz-cdr) edge (t)
+	      (e-cdr) edge[RubineRed] ([xshift=1ex]t.south);
+	      % loops
+	      \draw[->] (x-cdr) -| ++(0, 2em) -| ([xshift=-1ex]phi.north);
+	      \draw[->] (phi-cdr) -| ++(1em, 1em) -| (phi.north);
+	      \draw[->] (phi-cdr) -| ++(0, 1.5em) -| (yz.north);
+	      \draw[->] (t-cdr) -| ++(0, 1em) -| ([xshift=1ex]yz.north);
+	
+	      % Variable egdes.
+	      \vlabelwy{x}{x}{0mm}
+	      \vlabelwy{xy}{x}{1.5mm}
+	      \vlabelwy{xy}{y}{-1.5mm}
+	      \vlabelwy{yz}{y}{1.5mm}
+	      \vlabelwy{yz}{z}{-1.5mm}
+	      \vlabelwy{t}{t}{1.5mm}
+	      \vlabelwy{e}{e}{0mm}
+%      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  }
+  
+  \only<5>{
+
+  From $v_1$ to $v_{13}$ by all possible paths. \\
+  Executing \transformer{y.cdr := nil}{} -- \textbf{strong nullification}.
+  
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+%      level 1/.style={onslide=<-0>{transparent}},
+%      level 2/.style={onslide=<-1>{transparent}},
+%      level 3/.style={onslide=<-2>{transparent}},
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large
+      
+      % Fig. 8/9, at vertex v13 (before) for all paths:
+%      \begin{scope}[level 1]
+	      \matrix[graph, column sep=1em] (g1)
+	      {
+	        \acons{x}{\{x\}} \& \acons{yz}{\{y, z\}} \& \acons{t}{\{t\}} \& \acons{phi}{\emptyset} \\
+	                         \& \acons{xy}{\{x, y\}} \& \acons{e}{\{e\}} \&                        \\
+	      };
+	      
+	
+	      % Selector edges.
+	      \path[->]
+	      (t-cdr) edge (phi)
+	      (x-cdr) edge (yz)
+	      (xy-cdr) edge[LightGrey] (t)
+	      (yz-cdr) edge[LightGrey] (t)
+	      (e-cdr) edge ([xshift=1ex]t.south);
+	      % loops
+	      \draw[->] (x-cdr) -| ++(0, 2em) -| ([xshift=-1ex]phi.north);
+	      \draw[->] (phi-cdr) -| ++(1em, 1em) -| (phi.north);
+	      \draw[->] (phi-cdr) -| ++(0, 1.5em) -| (yz.north);
+	      \draw[->] (t-cdr) -| ++(0, 1em) -| ([xshift=1ex]yz.north);
+	
+	      % Variable egdes.
+	      \vlabelwy{x}{x}{0mm}
+	      \vlabelwy{xy}{x}{1.5mm}
+	      \vlabelwy{xy}{y}{-1.5mm}
+	      \vlabelwy{yz}{y}{1.5mm}
+	      \vlabelwy{yz}{z}{-1.5mm}
+	      \vlabelwy{t}{t}{1.5mm}
+	      \vlabelwy{e}{e}{0mm}
+%      \end{scope}
+    \end{tikzpicture}
+  \end{center}
+  }
+\end{frame}
 
 \begin{frame}[fragile]{Extensions}
   \begin{description}
