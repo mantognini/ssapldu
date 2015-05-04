@@ -512,7 +512,7 @@
 
       \matrix[graph, column sep=1em] (g1) %<-- general column spacing
       {
-        \&                                 \&
+        \& \&                              \&
         \ccons[minimum width=1em]{l2}{l_2} \&
         \ccons[minimum width=1em]{l3}{l_3} \\
       };
@@ -859,7 +859,7 @@
   \only<1>{
   
   From $v_1$ to $v_{11}$ \textit{without entering} the loop. \\
-  Executing \transformer{e.cdr := nil}.
+  Executing \transformer{e.cdr := nil}{} -- $n_{\{t\}}$ is \textbf{not} shared.
   \vspace{1.5em} % TODO need better alignment (vertical & horizontal) 
   \begin{center}
     \begin{tikzpicture}[semithick,
@@ -897,7 +897,7 @@
   \only<2>{
   
   From $v_1$ to $v_{11}$ \textit{through} the loop. \\
-  Executing \transformer{e.cdr := nil}.
+  Executing \transformer{e.cdr := nil}{} -- $n_{\{t\}}$ is \textbf{not} shared.
   
   \begin{center}
     \begin{tikzpicture}[semithick,
@@ -941,7 +941,7 @@
   \only<3>{
   
   From $v_1$ to $v_{11}$ by all possible paths. \\
-  Executing \transformer{e.cdr := nil}.
+  Executing \transformer{e.cdr := nil}{} -- $n_{\{t\}}$ is still \textbf{not} shared.
   
   \begin{center}
     \begin{tikzpicture}[semithick,
@@ -988,7 +988,7 @@
   \only<4>{
 
   From $v_1$ to $v_{12}$ by all possible paths. \\
-  Executing \transformer{e.cdr := t}.
+  Executing \transformer{e.cdr := t}{} -- $n_{\{t\}}$ \textbf{is} shared.
   
   \begin{center}
     \begin{tikzpicture}[semithick,
