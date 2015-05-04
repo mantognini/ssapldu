@@ -539,7 +539,7 @@
 
 % Draws a "transformer" arrow.
 \newcommand{\transarrow}[3]{%
-  \draw[trans] ($(#1.east)+(1em,0)$) -- node[above]{\normalsize $#2$}
+  \draw[trans] ($(#1.east)+(1em,0)$) -- node[above]{\normalsize #2}
   ($(#3.west)+(-1em,0)$);}
 
 \begin{frame}[fragile]{$DSG$ transformers: 1 (simplified)}
@@ -556,7 +556,7 @@
       every edge/.append style={->}, >=latex]
       \Large
 
-      \matrix[graph, column sep=1em] (lhs) at (-6em, 0)
+      \matrix[graph, column sep=1em] (lhs) at (-8em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
@@ -572,7 +572,7 @@
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
 
-      \matrix[graph, column sep=1em] (rhs) at (6em, 0)
+      \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l2}{l_2} \&
         \ccons[minimum width=1em]{l3}{l_3} \\
@@ -586,7 +586,7 @@
       \vlabel{above}{l2}{y}
 
       % Transformer arrow
-      \transarrow{lhs}{gc \comp \mtransformerDSG{-}}{rhs}
+      \transarrow{lhs}{$gc \comp$\transformerDSG{x := nil}}{rhs}
     \end{tikzpicture}
   \end{center}
 
