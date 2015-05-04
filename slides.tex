@@ -52,6 +52,7 @@
 \colorlet{Modification}{ForestGreen}
 \colorlet{VariableEdge}{Cyan}
 \colorlet{SelectorEdge}{Plum}
+\colorlet{LightGrey}{gray!40}
 
 
 % Scala listings.  Use colored Scala style by default.
@@ -549,7 +550,7 @@
     \end{tikzpicture}
   \end{center}
   
-  \transformerDSG{x.cdr := nil} results in, after $gc$:
+  \transformerDSG{y.cdr := nil} results in, after $gc$:
   
   \begin{center}
     \begin{tikzpicture}[semithick,
@@ -560,12 +561,12 @@
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
-        \ccons[minimum width=1em]{l3}{l_3} \\
+        \&                                 \\
       };
 
       % Selector edges.
       \path[->]
-      (l2-cdr) edge (l3);
+      (l1-cdr) edge (l2);
 
       % Variable egdes.
       \vlabel{left}{l1}{x}
@@ -607,7 +608,7 @@
     \end{tikzpicture}
   \end{center}
   
-  \transformerDSG{z := new} results in, after $gc$:
+  \transformerDSG{z := new} results in\textcolor{LightGrey}{, after $gc$}:
   
   \begin{center}
     \begin{tikzpicture}[semithick,
@@ -633,6 +634,193 @@
       \vlabel{above}{l4}{z}
     \end{tikzpicture}
   \end{center}
+  
+  No garbage collection because z is known to be nil right before this statement thanks to normalisation.
+\end{frame}
+
+
+
+\begin{frame}[fragile]{$DSG$ transformers: 4}
+  \transformerDSG{x := y}$ \left( \langle E_v, E_s \rangle \right) $ \\
+  \hspace{5em} $ \defeq \langle E_v \cup \left\{ \left[ \mbox{x}, \mbox{n} \right] \mid \left[ \mbox{y}, \mbox{n} \right] \in E_v \right\}, E_s \rangle $
+   
+  \vspace{1em}
+   
+  Let $ \langle E_v, E_s \rangle $ be\\
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+    \end{tikzpicture}
+  \end{center}
+  
+  \transformerDSG{z := x} results in\textcolor{LightGrey}{, after $gc$}:
+  
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l1}{z}
+%      \node[labelnode, yshift=1mm, left=of l1] {$z$} edge ([yshift=1mm]l1.west);
+%      \node[labelnode, yshift=-1mm, left=of l1] {$x$} edge ([yshift=-1mm]l1.west);
+      \vlabel{above}{l2}{y}
+    \end{tikzpicture}
+  \end{center}
+  
+  No garbage collection because z is known to be nil right before this statement thanks to normalisation.
+\end{frame}
+
+
+
+\begin{frame}[fragile]{$DSG$ transformers: 5}
+  \transformerDSG{x := y.sel}$ \left( \langle E_v, E_s \rangle \right) $ \\
+  \hspace{5em} $ \defeq \langle E_v \cup \left\{ \left[ \mbox{x}, \mbox{t} \right] \mid \left[ \mbox{y}, \mbox{s} \right] \in E_v \wedge \langle \mbox{s}, \mbox{sel}, \mbox{t} \rangle \in E_s \right\}, E_s \rangle $
+   
+  \vspace{1em}
+   
+  Let $ \langle E_v, E_s \rangle $ be\\
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+    \end{tikzpicture}
+  \end{center}
+  
+  \transformerDSG{z := y.cdr} results in\textcolor{LightGrey}{, after $gc$}:
+  
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+      \vlabel{above}{l3}{z}
+    \end{tikzpicture}
+  \end{center}
+  
+  No garbage collection because z is known to be nil right before this statement thanks to normalisation.
+\end{frame}
+
+
+
+\begin{frame}[fragile]{$DSG$ transformers: 6}
+  \transformerDSG{x.sel := y}$ \left( \langle E_v, E_s \rangle \right) $ \\
+  \hspace{5em} $ \defeq \langle E_v, E_s \cup \left\{ \langle \mbox{s}, \mbox{sel}, \mbox{t} \rangle \mid \left[ \mbox{x}, \mbox{s} \right] \in E_v \wedge \left[ \mbox{y}, \mbox{t} \right] \in E_v \right\} \rangle $
+   
+  \vspace{1em}
+   
+  Let $ \langle E_v, E_s \rangle $ be\\
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+      \vlabel{above}{l3}{z}
+    \end{tikzpicture}
+  \end{center}
+  
+  \transformerDSG{y.cdr := z} results in\textcolor{LightGrey}{, after $gc$}:
+  
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      ampersand replacement=\&, every edge/.append style={->}, >=latex]
+      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
+
+      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+      \vlabel{above}{l3}{z}
+    \end{tikzpicture}
+  \end{center}
+  
+  No garbage collection because y.cdr is known to be nil right before this statement thanks to normalisation.
 \end{frame}
 
 
