@@ -303,19 +303,20 @@
 \newcommand{\vlabelwy}[3]{%
   \node[labelnode, yshift=#3, left=of #1] {$#2$} edge ([yshift=#3]#1.west);}%
 
+% Draws a "transformer" arrow.
+\newcommand{\transarrow}[3]{%
+  \draw[trans] ($(#1.east)+(1em,0)$) -- node[above]{\normalsize #2}
+  ($(#3.west)+(-1em,0)$);}
+
 \ifcompileTreeSlides
 
 
 
 \begin{frame}[fragile]{Shape-Graph $SG = \langle E_v, E_s \rangle$}
 
-	\emph{Not} to be confused by a program control flow graph $G = (V, A)$
-
-	%\begin{center}
-	%$ SG \neq G $
-	%\end{center}
-
-	\vspace{1em}
+	%\emph{Not} to be confused by a program control flow graph $G = (V, A)$
+	%\vspace{1em}
+	
 	What is a \textbf{shape-graph}?
 
 	\begin{itemize}
@@ -358,7 +359,7 @@
     \end{tikzpicture}
   \end{center}
 
-	$n, s, t, l_1, l_2$ and $l_3$ are shape-nodes, $x$ a program variable and $sel \in \left\{ car, cdr \right\}$
+	%$n, s, t, l_1, l_2$ and $l_3$ are shape-nodes, $x$ a program variable and $sel \in \left\{ car, cdr \right\}$
 
 \end{frame}
 
@@ -394,7 +395,8 @@
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
       \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
 
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      // Initial graph
+      \matrix[graph, column sep=1em] (lhs) at (-8em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \\
@@ -412,19 +414,13 @@
 
       % Variable egdes.
       \vlabel{left}{l1}{x}
-    \end{tikzpicture}
-
-    becomes
-    \vspace{0.5em}
-
-    \begin{tikzpicture}[semithick,
-      ampersand replacement=\&, every edge/.append style={->}, >=latex]
-      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
-
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      
+      % After applying gc
+      \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
-        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l2}{l_2} \\
+        \& \&
         \ccons[minimum width=1em]{l5}{l_5} \\
       };
 
@@ -435,9 +431,11 @@
 
       % Variable egdes.
       \vlabel{left}{l1}{x}
+      
+      % Transformer arrow
+      \transarrow{lhs}{$gc$}{rhs}
     \end{tikzpicture}
   \end{center}
-  \TODO{Maybe we could use a ``transformer'' arrow here too?}
 \end{frame}
 
 
@@ -536,11 +534,6 @@
     \end{tikzpicture}
   \end{center}
 \end{frame}
-
-% Draws a "transformer" arrow.
-\newcommand{\transarrow}[3]{%
-  \draw[trans] ($(#1.east)+(1em,0)$) -- node[above]{\normalsize #2}
-  ($(#3.west)+(-1em,0)$);}
 
 \begin{frame}[fragile]{$DSG$ transformers: 1 (simplified)}
   \[
