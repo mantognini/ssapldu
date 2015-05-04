@@ -827,6 +827,28 @@
   No garbage collection because y.cdr is known to be nil right before this statement thanks to normalisation.
 \end{frame}
 
+\begin{frame}[fragile]{Collecting Semantics}
+  Each DSG models one runtime behaviour (of many).
+  
+  \vspace{1em}
+  
+  We need a tool to perform analysis on \textbf{all} possible execution paths, not just one.
+  
+  \vspace{2em}
+  
+  Hence the collecting function $cv: V \to 2^{DSG}$ \\
+  $cv(v) \defeq \{ $ \transformerDSG{st($v_k$)} $ ( \cdots ( $ \transformerDSG{st($v_1$)} $ ( \langle \emptyset, \emptyset \rangle ))) \mid $ \\
+  \hspace{16em} $ \left[ v_1, \ldots, v_k \right] \in pathsTo(v) \} $ 
+  
+  \vspace{2em}
+  
+  $V$ is the vertex set of the \textit{regular} control flow graph $G = (V, A)$.
+\end{frame}
+
+
+
+% TODO insert more slides here
+
 \begin{frame}[fragile]{Extensions}
   \begin{description}
   \item[Merging Shape-Nodes] to avoid a huge number of nodes ($\leq 2^{|PVar|}$), a widening operator can be introduced.
