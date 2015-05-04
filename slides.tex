@@ -827,6 +827,15 @@
   No garbage collection because y.cdr is known to be nil right before this statement thanks to normalisation.
 \end{frame}
 
+\begin{frame}[fragile]{Extensions}
+  \begin{description}
+  \item[Merging Shape-Nodes] to avoid a huge number of nodes ($\leq 2^{|PVar|}$), a widening operator can be introduced.
+  \item[Finding Aliases and Sharing] testing whether $x$ and $y$ are aliases at some point of the program can be extended to test whether two paths can alias by introducing two extra variables.
+  \item[Interprocedural Analysis] \textit{shape-graph-transformations} can be introduced to accurately model procedures.
+  \item[Representing Definitely Circular Structures] with extra special nodes ($n_{atom}, n_{nil}, n_{uninit}$), definitely cyclic data structures can be modelled.
+  \end{description}
+\end{frame}
+
 
 \begin{frame}[fragile,t]{Graph example}
   \vspace{-0.5em}\uncover<2-4>{ % this diagram is visible in slides 2-4.
@@ -888,6 +897,8 @@
   The diagram above won't show up until slide 2.
 \end{frame}
 \fi
+
+
 
 %\begin{frame}[fragile]{Some citations and maths}
 %  The \emph{Probability Monad} is a variant of the @List@
