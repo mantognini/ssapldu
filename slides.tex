@@ -62,7 +62,7 @@
 \lstset{
   style=scala-color,
   basicstyle=\footnotesize\tt,
-  otherkeywords={do,od},
+  otherkeywords={do,od,nil},
   moredelim=**[is][\color{Insertion}]{@}{@},
   moredelim=**[is][\color{Modification}]{>}{<}}
 \lstnewenvironment{lstscalasmall}{%
@@ -91,10 +91,13 @@
 
 \newcommand\defeq{\stackrel{\mathclap{\tiny\mbox{def}}}{=}}
 
-\newcommand{\transformer}[2]{$\llbracket$ \lstinline@#1@ $\rrbracket_{#2}$}
+\newcommand{\transformer}[2]{$\llbracket$ \lstinline@#1@
+  $\rrbracket_{\mathcal{#2}}$}
 \newcommand{\transformerDSG}[1]{\transformer{#1}{DSG}}
-\newcommand{\mtransformer}[2]{\llbracket #1 \rrbracket_{#2}}
+\newcommand{\transformerSSG}[1]{\transformer{#1}{SSG}}
+\newcommand{\mtransformer}[2]{\llbracket #1 \rrbracket_{\mathcal{#2}}}
 \newcommand{\mtransformerDSG}[1]{\mtransformer{#1}{DSG}}
+\newcommand{\mtransformerSSG}[1]{\mtransformer{#1}{SSG}}
 
 %%%% Custom macros %%%%
 \newif\ifcompileTreeSlides
@@ -273,7 +276,7 @@
 % contains extra node parameters (e.g. minimum width=1em creates cell
 % that is less wide).
 \newcommand{\cell}[4][]{%
-  \node[rectangle, cellbox=#4, #1] (#2) {};% (#2-car)
+  \node[cellbox=#4, #1] (#2) {};%
   \draw[draw=\celldraw{#4}, semithick] (#2.north) -- (#2.south);
   \path (#2.west) -- coordinate[midway] (#2-car) (#2.center);%
   \path (#2.east) -- coordinate[midway] (#2-cdr) (#2.center);%
@@ -295,6 +298,12 @@
 % A shared (red) cons cell.
 \newcommand{\scons}[3][]{\cons[#1]{#2}{n_{#3}}{red}}
 
+% A "transparent" cons cell (can be used as a placeholder).
+\newcommand{\tcell}[1][]{
+  \node[rectangle, minimum width=2em, minimum height=1em, inner sep=0,
+  #1] {};}
+
+
 % Variable label and edge. Arguments are position, node and label text.
 \newcommand{\vlabel}[3]{%
   \node[labelnode, #1=of #2] {$#3$} edge (#2);}%
@@ -306,7 +315,13 @@
 % Draws a "transformer" arrow.
 \newcommand{\transarrow}[3]{%
   \draw[trans] ($(#1.east)+(1em,0)$) -- node[above]{\normalsize #2}
-  ($(#3.west)+(-1em,0)$);}
+  ($(#3.west)+(-1.5em,0)$);}
+
+% Draws a vertical "transformer" arrow.
+\newcommand{\vtransarrow}[4][left]{%
+  \draw[trans] ($(#2.south)+(0,-.5em)$) -- node[#1]{\normalsize #3}
+  ($(#4.north)+(0,.5em)$);}
+
 
 \ifcompileTreeSlides
 
@@ -915,8 +930,548 @@
 \end{frame}
 
 
+% 6. abstraction function with SSG
+%    - relation between quotient and alpha function(s)
+\begin{frame}{Abstraction -- helpers}
+\end{frame}
 
-% TODO insert more slides here
+% 6. abstraction function with SSG
+%    - relation between quotient and alpha function(s)
+\begin{frame}{Abstraction}
+\end{frame}
+
+% 7. commutative diagram for [st]DSG / alpha / [st]SSG
+\begin{frame}{Abstract interpretation, abstractly}
+  \vspace{-0.5em}
+  \begin{center}
+    \begin{tikzpicture}[semithick,
+      level 2/.style={onslide=<-2>{transparent}},
+      level 4/.style={onslide=<-4>{transparent}},
+      level 5/.style={onslide=<-5>{transparent}},
+      level 6/.style={onslide=<-6>{transparent}},
+      ampersand replacement=\&, >=cm to]
+      \Large
+
+      % Shape graphs
+      \matrix[matrix, column sep=6em, row sep=3em, inner sep=10pt] {
+        \node (D1) {$\phantom{\{} DSG_1 \phantom{\}}$}; \&
+        \uncover<4->{\node (S1) {$SSG_1$};} \\
+        \uncover<2->{\node (D2) {$\phantom{\{} DSG_2 \phantom{\}}$};} \&
+        \uncover<5->{\node (S2) {$SSG_2$};} \\
+      };
+
+      % Extra "set braces"
+      \uncover<3->{
+        \node at (D1) {$\{ \phantom{DSG_1} \}$};
+        \node at (D2) {$\{ \phantom{DSG_2} \}$};}
+
+      % Arrows.
+      \uncover<2>{\draw[->] (D1) --
+        node[left]{$\phantom{\{} \mtransformerDSG{s} \phantom{\}}$} (D2);}
+      \uncover<3->{\draw[->] (D1) --
+        node[left]{$\{ \mtransformerDSG{s} \}$} (D2);}
+      \uncover<4->{\draw[->] (D1) -- node[above]{$\alpha$} (S1);}
+      \uncover<6->{\draw[->] (S1) -- node[right]{$\mtransformerSSG{s}$} (S2);}
+      \uncover<5->{\draw[->] (D2) -- node[above]{$\alpha$} (S2);}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% 8. some examples for "abstract transformation rules" [st]SSG
+%   - an easy one - new
+\begin{frame}{Abstract interpretation -- examples (cont.)}
+  Allocating a new node.
+
+  \vspace{1em}
+
+  \begin{center}
+    \begin{tikzpicture}[semithick, ampersand replacement=\&,%
+      every edge/.append style={->}, >=latex]
+      \Large
+
+      %%% DSG 1 (top left) %%%
+      \matrix[graph] (d1) at (-5em, 3em)
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+
+      %%% SSG 1 (top right) %%%
+      \matrix[graph] (s1) at (6em, 3em)
+      {
+        \acons{x}{\{x\}} \& \acons{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->] (x-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+
+      %%% DSG 2 (bottom left) %%%
+      \matrix[graph] (d2) at (-5em, -3em)
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \\
+        \ccons[minimum width=1em]{l4}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{left}{l4}{y}
+
+      %%% SSG 2 (bottom right) %%%
+      \matrix[graph] (s2) at (6em, -3em)
+      {
+        \acons{x}{\{x\}} \& \acons{e}{\emptyset} \\
+        \acons{y}{\{y\}} \\
+      };
+
+      % Selector edges.
+      \path[->] (x-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+      \vlabel{left}{y}{y}
+
+      %%% Transformer arrows %%%
+      \vtransarrow{d1}{\transformerDSG{y := new}}{d2}
+      \transarrow{d1}{$\hat{\alpha}$}{s1}
+      \transarrow{d2}{$\hat{\alpha}$}{s2}
+      \vtransarrow[right]{s1}{\transformerSSG{y := new}}{s2}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% 8. some examples for "abstract transformation rules" [st]SSG
+%   - an easy one - assigning nil to fields
+\begin{frame}[fragile]{Abstract interpretation -- examples}
+  Assigning @nil@ to a field.
+
+  \vspace{1em}
+
+  \begin{center}
+    \begin{tikzpicture}[semithick, ampersand replacement=\&,%
+      every edge/.append style={->}, >=latex]
+      \Large
+
+      %%% DSG 1 (top left) %%%
+      \matrix[graph] (d1) at (-5em, 3em)
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \&
+        \ccons[minimum width=1em]{l4}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3)
+      (l3-cdr) edge (l4);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+
+      %%% SSG 1 (top right) %%%
+      \matrix[graph] (s1) at (6em, 3em)
+      {
+        \acons[minimum width=1.5em]{x}{\{x\}} \&
+        \acons[minimum width=1.5em]{y}{\{y\}} \&
+        \acons[minimum width=1.5em]{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (x-cdr) edge (y)
+      (y-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+      \vlabel{above}{y}{y}
+
+      %%% DSG 2 (bottom left) %%%
+      \matrix[graph] (d2) at (-5em, -3em)
+      {
+        \tcell[minimum width=1em] \\
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \&
+        \ccons[minimum width=1em]{l4}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l2-cdr) edge (l3)
+      (l3-cdr) edge (l4);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+
+      %%% SSG 2 (bottom right) %%%
+      \matrix[graph] (s2) at (6em, -3em)
+      {
+        \tcell[minimum width=1.5em] \\
+        \acons[minimum width=1.5em]{x}{\{x\}} \&
+        \acons[minimum width=1.5em]{y}{\{y\}} \&
+        \acons[minimum width=1.5em]{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (y-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+      \vlabel{above}{y}{y}
+
+      %%% Transformer arrows %%%
+      \vtransarrow{d1}{\transformerDSG{x.cdr := nil}}{d2}
+      \transarrow{d1}{$\hat{\alpha}$}{s1}
+      \transarrow{d2}{$\hat{\alpha}$}{s2}
+      \vtransarrow{s1}{\transformerSSG{x.cdr := nil}}{s2}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% 8. some examples for "abstract transformation rules" [st]SSG
+%   - assigning nil to a variable (merges nodes)
+\begin{frame}[fragile]{Abstract interpretation -- examples}
+  Assigning @nil@ to a variable.
+
+  \vspace{1em}
+
+  \begin{center}
+    \begin{tikzpicture}[semithick, ampersand replacement=\&,%
+      every edge/.append style={->}, >=latex]
+      \Large
+
+      %%% DSG 1 (top left) %%%
+      \matrix[graph] (d1) at (-5em, 3em)
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \&
+        \ccons[minimum width=1em]{l4}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3)
+      (l3-cdr) edge (l4);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+
+      %%% SSG 1 (top right) %%%
+      \matrix[graph] (s1) at (6em, 3em)
+      {
+        \acons[minimum width=1.5em]{x}{\{x\}} \&
+        \acons[minimum width=1.5em]{y}{\{y\}} \&
+        \acons[minimum width=1.5em]{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (x-cdr) edge (y)
+      (y-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+      \vlabel{above}{y}{y}
+
+      %%% DSG 2 (bottom left) %%%
+      \matrix[graph] (d2) at (-5em, -3em)
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \&
+        \ccons[minimum width=1em]{l4}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3)
+      (l3-cdr) edge (l4);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+
+      %%% SSG 2 (bottom right) %%%
+      \matrix[graph] (s2) at (6em, -3em)
+      {
+        \acons[minimum width=1.5em]{x}{\{x\}} \&
+        \tcell[minimum width=1.5em] \&
+        \acons[minimum width=1.5em]{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->] (x-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+
+      %%% Transformer arrows %%%
+      \vtransarrow{d1}{\transformerDSG{y := nil}}{d2}
+      \transarrow{d1}{$\hat{\alpha}$}{s1}
+      \transarrow{d2}{$\hat{\alpha}$}{s2}
+      \vtransarrow[right]{s1}{\transformerSSG{y := nil}}{s2}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+
+% 8. some examples for "abstract transformation rules" [st]SSG
+%   - materialisation
+\begin{frame}{Abstract interpretation -- examples (cont.)}
+  Materialising a node $n_y$ from the summary node $n_\emptyset$.
+
+  \vspace{1em}
+
+  \begin{center}
+    \begin{tikzpicture}[semithick, ampersand replacement=\&,%
+      every edge/.append style={->}, >=latex]
+      \Large
+
+      %%% DSG 1 (top left) %%%
+      \matrix[graph] (d1) at (-5em, 3em)
+      {
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \&
+        \ccons[minimum width=1em]{l4}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3)
+      (l3-cdr) edge (l4);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+
+      %%% SSG 1 (top right) %%%
+      \matrix[graph] (s1) at (6em, 3em)
+      {
+        \acons[minimum width=1.5em]{x}{\{x\}} \&
+        \tcell[minimum width=1.5em] \&
+        \acons[minimum width=1.5em]{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->] (x-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+
+      %%% DSG 2 (bottom left) %%%
+      \matrix[graph] (d2) at (-5em, -3em)
+      {
+        \tcell[minimum width=1em] \\
+        \ccons[minimum width=1em]{l1}{l_1} \&
+        \ccons[minimum width=1em]{l2}{l_2} \&
+        \ccons[minimum width=1em]{l3}{l_3} \&
+        \ccons[minimum width=1em]{l4}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-cdr) edge (l2)
+      (l2-cdr) edge (l3)
+      (l3-cdr) edge (l4);
+
+      % Variable egdes.
+      \vlabel{left}{l1}{x}
+      \vlabel{above}{l2}{y}
+
+      %%% SSG 2 (bottom right) %%%
+      \matrix[graph] (s2) at (6em, -3em)
+      {
+        \tcell[minimum width=1em] \\
+        \acons[minimum width=1.5em]{x}{\{x\}} \&
+        \acons[minimum width=1.5em]{y}{\{y\}} \&
+        \acons[minimum width=1.5em]{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (x-cdr) edge (y)
+      (y-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+      \vlabel{above}{y}{y}
+
+      %%% Transformer arrows %%%
+      \vtransarrow{d1}{\transformerDSG{y := x.cdr}}{d2}
+      \transarrow{d1}{$\hat{\alpha}$}{s1}
+      \transarrow{d2}{$\hat{\alpha}$}{s2}
+      \vtransarrow{s1}{\transformerSSG{y := x.cdr}}{s2}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% 8. some examples for "abstract transformation rules" [st]SSG
+%   - strong nullification
+\begin{frame}{Abstract interpretation -- examples (cont.)}
+
+  \vspace{.5em}
+  Strong nullification.
+  \vspace{.5em}
+
+  \begin{center}
+    \begin{tikzpicture}[semithick, ampersand replacement=\&,%
+      every edge/.append style={->}, >=latex]
+      \Large
+
+      %%% DSG 1 (top left) %%%
+      \matrix[graph, row sep=1ex, left delimiter=\{,
+      right delimiter=\}] (d1) at (-6em, 4em)
+      {
+        \tcell[minimum width=.25em, minimum height=.25em] \\
+        \&
+        \ccons[minimum width=1em]{l1-1}{l_1} \&
+        \ccons[minimum width=1em]{l2-1}{l_2} \&
+        \ccons[minimum width=1em]{l3-1}{l_3} \&
+        \ccons[minimum width=1em]{l4-1}{l_4} \\
+        \&
+        \ccons[minimum width=1em]{l1-2}{l_1} \&
+        \ccons[minimum width=1em]{l2-2}{l_2} \&
+        \ccons[minimum width=1em]{l3-2}{l_3} \&
+        \ccons[minimum width=1em]{l4-2}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l1-1-cdr) edge (l2-1)
+      (l2-1-cdr) edge (l3-1)
+      (l3-1-cdr) edge (l4-1)
+      (l1-2-cdr) edge (l2-2)
+      (l2-2-cdr) edge (l3-2)
+      (l3-2-cdr) edge (l4-2);
+
+      % Variable egdes.
+      \vlabel{left}{l1-1}{x}
+      \vlabel{above}{l2-1}{y}
+      \vlabelwy{l1-2}{x}{.5ex}
+      \vlabelwy{l1-2}{y}{-.5ex}
+
+      %%% SSG 1 (top right) %%%
+      \matrix[graph] (s1) at (6em, 4em)
+      {
+        \acons[minimum width=1.5em]{x}{\{x\}} \\
+        \acons[minimum width=1.5em]{xy}{\{x,y\}} \&
+        \acons[minimum width=1.5em]{y}{\{y\}} \&
+        \acons[minimum width=1.5em]{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (x-cdr) edge (y)
+      (xy-cdr) edge (y)
+      (y-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+      \vlabel{above}{y}{y}
+      \vlabelwy{xy}{x}{.5ex}
+      \vlabelwy{xy}{y}{-.5ex}
+
+      %%% DSG 2 (bottom left) %%%
+      \matrix[graph, row sep=1ex, left delimiter=\{,
+      right delimiter=\}] (d2) at (-6em, -4em)
+      {
+        \tcell[minimum width=.25em, minimum height=.25em] \\
+        \&
+        \ccons[minimum width=1em]{l1-1}{l_1} \&
+        \ccons[minimum width=1em]{l2-1}{l_2} \&
+        \ccons[minimum width=1em]{l3-1}{l_3} \&
+        \ccons[minimum width=1em]{l4-1}{l_4} \\
+        \&
+        \ccons[minimum width=1em]{l1-2}{l_1} \&
+        \ccons[minimum width=1em]{l2-2}{l_2} \&
+        \ccons[minimum width=1em]{l3-2}{l_3} \&
+        \ccons[minimum width=1em]{l4-2}{l_4} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (l2-1-cdr) edge (l3-1)
+      (l3-1-cdr) edge (l4-1)
+      (l2-2-cdr) edge (l3-2)
+      (l3-2-cdr) edge (l4-2);
+
+      % Variable egdes.
+      \vlabel{left}{l1-1}{x}
+      \vlabel{above}{l2-1}{y}
+      \vlabelwy{l1-2}{x}{.5ex}
+      \vlabelwy{l1-2}{y}{-.5ex}
+
+      %%% SSG 2 (bottom right) %%%
+      \matrix[graph] (s2) at (6em, -4em)
+      {
+        \tcell[minimum width=1.5em, minimum height=0.25em] \\
+        \acons[minimum width=1.5em]{x}{\{x\}} \\
+        \acons[minimum width=1.5em]{xy}{\{x,y\}} \&
+        \acons[minimum width=1.5em]{y}{\{y\}} \&
+        \acons[minimum width=1.5em]{e}{\emptyset} \\
+      };
+
+      % Selector edges.
+      \path[->]
+      (y-cdr) edge (e);
+      \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
+
+      % Variable egdes.
+      \vlabel{left}{x}{x}
+      \vlabel{above}{y}{y}
+      \vlabelwy{xy}{x}{.5ex}
+      \vlabelwy{xy}{y}{-.5ex}
+
+      %%% Transformer arrows %%%
+      \vtransarrow{[xshift=1em]d1}{\transformerDSG{x.cdr := nil}}{%
+        [xshift=1em]d2}
+      \transarrow{d1}{$\alpha$}{s1}
+      \transarrow{d2}{$\alpha$}{s2}
+      \vtransarrow{s1}{\transformerSSG{x.cdr := nil}}{s2}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% 9. (general idea behind 8.)
+% TODO: not sure what this is supposed to be...
+%\begin{frame}{Abstract interpretation, abstractly}
+%\end{frame}
 
 
 
