@@ -889,26 +889,26 @@
 \end{frame}
 \fi
 
-\begin{frame}[fragile]{Some citations and maths}
-  The \emph{Probability Monad} is a variant of the @List@
-  monad.\footnote{See e.g.\ \cite{RamseyP2002popl,Gibbons2012utp}}
-
-  \begin{lstlisting}
-  type Dist[+A] = List[(A, Double)]
-  final case class Rand[+A](dist: Dist[A]) {
-    // Monadic "bind"
-    def flatMap[B](f: A => Rand[B]): Rand[B] = Rand(
-      for ((v, p) <- dist; (w, q) <- f(v).dist)
-      yield (w, q * p))
-    ...
-  }
-  \end{lstlisting}
-  Computations are sequenced using the \emph{chain rule}:
-  \[
-  \Pr\{ f(X) = y \} = \sum_{x} \Pr\{ f(X) = y \,|\, X = x \} \Pr\{ X =
-  x \}
-  \]
-\end{frame}
+%\begin{frame}[fragile]{Some citations and maths}
+%  The \emph{Probability Monad} is a variant of the @List@
+%  monad.\footnote{See e.g.\ \cite{RamseyP2002popl,Gibbons2012utp}}
+%
+%  \begin{lstlisting}
+%  type Dist[+A] = List[(A, Double)]
+%  final case class Rand[+A](dist: Dist[A]) {
+%    // Monadic "bind"
+%    def flatMap[B](f: A => Rand[B]): Rand[B] = Rand(
+%      for ((v, p) <- dist; (w, q) <- f(v).dist)
+%      yield (w, q * p))
+%    ...
+%  }
+%  \end{lstlisting}
+%  Computations are sequenced using the \emph{chain rule}:
+%  \[
+%  \Pr\{ f(X) = y \} = \sum_{x} \Pr\{ f(X) = y \,|\, X = x \} \Pr\{ X =
+%  x \}
+%  \]
+%\end{frame}
 
 \begin{frame}{Thank you!}
   \begin{center}
@@ -918,55 +918,55 @@
 
 %%%  Backup slides  %%%
 
-\appendix
-\newcounter{finalframe}
-\setcounter{finalframe}{\value{framenumber}}
-
-\begin{frame}[noframenumbering]
-  \begin{center}
-    \emph{\LARGE Additional slides}
-  \end{center}
-\end{frame}
-
-\begin{frame}[fragile]{The \texttt{grassModel} in Odds}
-  \setcounter{framenumber}{\value{finalframe}}%
-  \begin{lstlisting}
-  trait CodeExample extends Stuff {
-    def grassModel: Rand[Boolean] = {
-      val rain       = flip(0.3)
-      val sprinkler  = flip(0.5)
-      val grassIsWet =
-        flip(0.9) && rain      ||
-        flip(0.8) && sprinkler ||
-        flip(0.1)
-      if (grassIsWet) rain else never
-    }
-  }
-  \end{lstlisting}
-\end{frame}
-
-\begin{frame}[noframenumbering]{Quotes and graphics}
-  The Monty Hall problem:
-  \begin{quote}
-    Suppose you're on a game show, and you're given the choice of
-    three doors: Behind one door is a car; behind the others,
-    goats. You pick a door, say No. 1, and the host, who knows what's
-    behind the doors, opens another door, say No. 3, which has a
-    goat. He then says to you, "Do you want to pick door No. 2?" Is it
-    to your advantage to switch your choice?
-
-    \hfill{\em \cite{vosSavant1990monty}}
-  \end{quote}
-  \begin{center}
-    \includegraphics[height=2cm]{img/monty/Monty_open_door}
-  \end{center}
-\end{frame}
+%\appendix
+%\newcounter{finalframe}
+%\setcounter{finalframe}{\value{framenumber}}
+%
+%\begin{frame}[noframenumbering]
+%  \begin{center}
+%    \emph{\LARGE Additional slides}
+%  \end{center}
+%\end{frame}
+%
+%\begin{frame}[fragile]{The \texttt{grassModel} in Odds}
+%  \setcounter{framenumber}{\value{finalframe}}%
+%  \begin{lstlisting}
+%  trait CodeExample extends Stuff {
+%    def grassModel: Rand[Boolean] = {
+%      val rain       = flip(0.3)
+%      val sprinkler  = flip(0.5)
+%      val grassIsWet =
+%        flip(0.9) && rain      ||
+%        flip(0.8) && sprinkler ||
+%        flip(0.1)
+%      if (grassIsWet) rain else never
+%    }
+%  }
+%  \end{lstlisting}
+%\end{frame}
+%
+%\begin{frame}[noframenumbering]{Quotes and graphics}
+%  The Monty Hall problem:
+%  \begin{quote}
+%    Suppose you're on a game show, and you're given the choice of
+%    three doors: Behind one door is a car; behind the others,
+%    goats. You pick a door, say No. 1, and the host, who knows what's
+%    behind the doors, opens another door, say No. 3, which has a
+%    goat. He then says to you, "Do you want to pick door No. 2?" Is it
+%    to your advantage to switch your choice?
+%
+%    \hfill{\em \cite{vosSavant1990monty}}
+%  \end{quote}
+%  \begin{center}
+%    \includegraphics[height=2cm]{img/monty/Monty_open_door}
+%  \end{center}
+%\end{frame}
 
 
 %%% Bibliography
 
-\bibliography{monty,biblio}
-\bibliographystyle{apalike}
+%\bibliography{monty,biblio}
+%\bibliographystyle{apalike}
 
 \end{document}
 
