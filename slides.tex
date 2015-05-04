@@ -934,6 +934,30 @@
 \end{frame}
 
 
+\begin{frame}{Abstraction, abstractly}
+  \vspace{-0.5em}
+  \begin{center}
+    \begin{tikzpicture}[semithick,ampersand replacement=\&, >=cm to]
+      \Large
+
+      % Shape graphs
+      \matrix[matrix, column sep=6em, row sep=3em, inner sep=10pt] {
+        \uncover<2->{\node[fill=gray!20!white] {$\subseteq \; \cup$};} \&
+        \uncover<3->{\node[fill=gray!20!white]
+          {$\sqsubseteq \; \sqcup$};} \\[-2em]
+        \node (D) {$\phantom{\{} DSG \phantom{\}}$}; \&
+        \uncover<3->{\node (S) {$SSG$};} \\
+      };
+
+      % Extra "set braces"
+      \uncover<2->{\node at (D) {$\{ \phantom{DSG} \}$};}
+
+      % Arrows.
+      \uncover<3->{\draw[->] (D) -- node[above]{$\alpha$} (S);}
+    \end{tikzpicture}
+  \end{center}
+\end{frame}
+
 % 6. abstraction function with SSG
 %    - relation between quotient and alpha function(s)
 \begin{frame}{Abstraction -- helpers}
@@ -948,20 +972,20 @@
 \begin{frame}{Abstract interpretation, abstractly}
   \vspace{-0.5em}
   \begin{center}
-    \begin{tikzpicture}[semithick,
-      level 2/.style={onslide=<-2>{transparent}},
-      level 4/.style={onslide=<-4>{transparent}},
-      level 5/.style={onslide=<-5>{transparent}},
-      level 6/.style={onslide=<-6>{transparent}},
-      ampersand replacement=\&, >=cm to]
+    \begin{tikzpicture}[semithick,ampersand replacement=\&, >=cm to]
       \Large
 
       % Shape graphs
-      \matrix[matrix, column sep=6em, row sep=3em, inner sep=10pt] {
-        \node (D1) {$\phantom{\{} DSG_1 \phantom{\}}$}; \&
+      \matrix[matrix, row sep=3em, inner sep=10pt] {
+        \uncover<3->{\node[fill=gray!20!white] {$\subseteq \; \cup$};}
+        \&[5em] \&[-1em]
+        \uncover<4->{\node[fill=gray!20!white]
+          {$\sqsubseteq \; \sqcup$};} \\[-2em]
+        \node (D1) {$\phantom{\{} DSG_1 \phantom{\}}$}; \& \&
         \uncover<4->{\node (S1) {$SSG_1$};} \\
         \uncover<2->{\node (D2) {$\phantom{\{} DSG_2 \phantom{\}}$};} \&
-        \uncover<5->{\node (S2) {$SSG_2$};} \\
+        \uncover<5->{\node (S2) {$SSG_2$};} \&
+        \uncover<6->{\node (S2bis) {$\sqsubseteq SSG'_2$};} \\
       };
 
       % Extra "set braces"
@@ -975,7 +999,8 @@
       \uncover<3->{\draw[->] (D1) --
         node[left]{$\{ \mtransformerDSG{s} \}$} (D2);}
       \uncover<4->{\draw[->] (D1) -- node[above]{$\alpha$} (S1);}
-      \uncover<6->{\draw[->] (S1) -- node[right]{$\mtransformerSSG{s}$} (S2);}
+      \uncover<6->{\draw[->] (S1) --
+        node[right]{$\mtransformerSSG{s}$} (S2bis);}
       \uncover<5->{\draw[->] (D2) -- node[above]{$\alpha$} (S2);}
     \end{tikzpicture}
   \end{center}
