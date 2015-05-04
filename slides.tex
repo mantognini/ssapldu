@@ -174,16 +174,20 @@
 % \subsection*{}
 
 \begin{frame}[fragile]{Motivation}
-  Analyse the shape of heap allocated data structure
+  Analyse the shape of heap allocated data structure.
 
   \vspace{1em}
   
-  Verify that a program preserves shape properties such as
+  Verify that a program preserves shape properties such as:
   \begin{itemize}
-  \item "list-ness"
-  \item "circular list-ness"
-  \item "tree-ness" \TODO{is it actually supported???}
+  \item \textit{list-ness}
+  \item \textit{circular list-ness}
+  \item \textit{tree-ness} \TODO{is it actually supported???}
   \end{itemize}
+  
+  \vspace{1em}
+  
+  This analysis algorithm can be used to find \textbf{aliases}, and therefore can be used to optimise code (no alias means it can be more easily parallelised).
 \end{frame}
 
 \begin{frame}[fragile]{List Reversal: Normalisation}
