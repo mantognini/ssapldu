@@ -364,21 +364,23 @@
 \end{frame}
 
 \begin{frame}[fragile]{$DSG$: Deterministic Shape-Graph}
-  $E_v$ and $E_s$ are also used as functions:
-  \begin{itemize}
-  \item $E_v(x) \defeq \left\{ n \mid \left[x, n\right] \in E_v \right\}$
-  \item $E_s(s, sel) \defeq \left\{ t \mid \langle s, sel, t \rangle \in E_s \right\}$
-  \end{itemize}
-  \TODO{is this notation used anywhere else in the slides? O/w inline
-    below?}
+%  $E_v$ and $E_s$ are also used as functions:
+%  \begin{itemize}
+%  \item $E_v(x) \defeq \left\{ n \mid \left[x, n\right] \in E_v \right\}$
+%  \item $E_s(s, sel) \defeq \left\{ t \mid \langle s, sel, t \rangle \in E_s \right\}$
+%  \end{itemize}
+%
+%  \vspace{1em}
 
-  \vspace{1em}
-
-  A shape-graph is \textbf{deterministic} if
+  A shape-graph is \emph{deterministic} if
   \begin{enumerate}
-  \item no variable points to more than one node: $ |E_v(*)| \leq 1$
-  \item no node has a selector pointing to more than one node: $ |E_s(*, *)| \leq 1$
+  \item no variable points to more than one node%: $ |E_v(*)| \leq 1$
+  \item no node has a selector pointing to more than one node%: $ |E_s(*, *)| \leq 1$
   \end{enumerate}
+
+  \vspace{1em}  
+  In other words:\\
+  \hspace{1.5em} It is deterministic when edges are behaving like \emph{pointers}.
 \end{frame}
 
 
