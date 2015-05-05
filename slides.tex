@@ -930,6 +930,15 @@
       \uncover<3->{\draw[->] (D) -- node[above]{$\alpha$} (S);}
     \end{tikzpicture}
   \end{center}
+  \pause\pause\pause
+
+  \emph{Static shape graphs:} $SSG = \tpl{SG, is\_shared} $
+  \begin{itemize}
+  \item $SG$ is a shape graph
+  \item $is\_shared\colon shape\_nodes(SG) \to \set{T, F}$
+
+    is a predicate identifying nodes that were shared in the DSG
+  \end{itemize}
 \end{frame}
 
 % 6. abstraction function with SSG
