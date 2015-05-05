@@ -533,11 +533,10 @@
 \end{frame}
 
 \begin{frame}[fragile]{$DSG$ Transformers: 1}
-  \[
-  \text{\transformerDSG{x := nil}} \left( \tpl{E_v, E_s} \right) \quad
-  \defeq \quad \tpl{E_v - \left\{\left[ \texttt{x}, * \right]\right\},
-    E_s}
-  \]
+  \begin{flalign*}
+    & \text{\transformerDSG{x := nil}} \left( \tpl{E_v, E_s} \right) & \\
+    & \quad \quad \quad \quad \quad \quad \defeq \tpl{E_v - \left\{\left[ \texttt{x}, * \right]\right\}, E_s}
+  \end{flalign*}
 
   \vspace{1em}
 
@@ -581,17 +580,15 @@
     \end{tikzpicture}
   \end{center}
 
-  \vspace{1em}
-
   NB: $gc$ can do some cleaning.
 \end{frame}
 
 
 \begin{frame}[fragile]{$DSG$ Transformers: 2}
-  \[
-  \text{\transformerDSG{x.sel := nil}} \left( \tpl{E_v, E_s} \right)
-  \defeq \tpl{E_v, E_s - \left\{ \tpl{s, \texttt{sel}, *} \mid \left[\texttt{x},s\right] \in E_v \right\}}
-  \]
+  \begin{flalign*}
+    & \text{\transformerDSG{x.sel := nil}} \left( \tpl{E_v, E_s} \right) & \\
+    & \quad \quad \quad \quad \quad \quad \defeq \tpl{E_v, E_s - \left\{ \tpl{s, \texttt{sel}, *} \mid \left[\texttt{x},s\right] \in E_v \right\}}
+  \end{flalign*}
 
   \vspace{1em}
 
@@ -644,23 +641,23 @@
 
 
 \begin{frame}[fragile]{$DSG$ Transformers: 3}
-  \transformerDSG{x := new}$ \left( \tpl{E_v, E_s} \right) $ \\
-  \hspace{5em} $ \defeq \tpl{E_v \cup \left\{ \left[ \mbox{x}, \mbox{n}_{new} \right] \right\}, E_s} $
+  \begin{flalign*}
+    & \text{\transformerDSG{x := new}} \left( \tpl{E_v, E_s} \right) & \\
+    & \quad \quad \quad \quad \quad \quad \defeq \tpl{E_v \cup \left\{ \left[ \mbox{x}, \mbox{n}_{new} \right] \right\}, E_s}
+  \end{flalign*}
 
   \vspace{1em}
 
-  Let $ \tpl{E_v, E_s} $ be\\
   \begin{center}
     \begin{tikzpicture}[semithick,
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
       \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
 
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      \matrix[graph, column sep=1em] (lhs) at (-8em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
-        \ccons[minimum width=1em]{l3}{l_3} \&
-        \& \\
+        \ccons[minimum width=1em]{l3}{l_3} \\
       };
 
       % Selector edges.
@@ -671,17 +668,8 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
-    \end{tikzpicture}
-  \end{center}
-
-  \transformerDSG{z := new} results in\textcolor{LightGrey}{, after $gc$}:
-
-  \begin{center}
-    \begin{tikzpicture}[semithick,
-      ampersand replacement=\&, every edge/.append style={->}, >=latex]
-      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
-
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      
+      \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
@@ -698,27 +686,31 @@
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
       \vlabel{above}{l4}{z}
+      
+      % Transformer arrow
+      \transarrow{lhs}{\transformerDSG{z := new}}{rhs}
     \end{tikzpicture}
   \end{center}
-
-  No garbage collection because z is known to be nil right before this statement thanks to normalisation.
+  
+  \vphantom{NB: $gc$ can do some cleaning.}
 \end{frame}
 
 
 
 \begin{frame}[fragile]{$DSG$ Transformers: 4}
-  \transformerDSG{x := y}$ \left( \tpl{E_v, E_s} \right) $ \\
-  \hspace{5em} $ \defeq \tpl{E_v \cup \left\{ \left[ \mbox{x}, \mbox{n} \right] \mid \left[ \mbox{y}, \mbox{n} \right] \in E_v \right\}, E_s} $
+  \begin{flalign*}
+    & \text{\transformerDSG{x := y}} \left( \tpl{E_v, E_s} \right) & \\
+    & \quad \quad \quad \quad \quad \quad \defeq \tpl{E_v \cup \left\{ \left[ \mbox{x}, \mbox{n} \right] \mid \left[ \mbox{y}, \mbox{n} \right] \in E_v \right\}, E_s}
+  \end{flalign*}
 
   \vspace{1em}
 
-  Let $ \tpl{E_v, E_s} $ be\\
   \begin{center}
     \begin{tikzpicture}[semithick,
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
       \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
 
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      \matrix[graph, column sep=1em] (lhs) at (-8em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
@@ -733,17 +725,8 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
-    \end{tikzpicture}
-  \end{center}
-
-  \transformerDSG{z := x} results in\textcolor{LightGrey}{, after $gc$}:
-
-  \begin{center}
-    \begin{tikzpicture}[semithick,
-      ampersand replacement=\&, every edge/.append style={->}, >=latex]
-      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
-
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      
+      \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
@@ -758,30 +741,32 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l1}{z}
-%      \node[labelnode, yshift=1mm, left=of l1] {$z$} edge ([yshift=1mm]l1.west);
-%      \node[labelnode, yshift=-1mm, left=of l1] {$x$} edge ([yshift=-1mm]l1.west);
       \vlabel{above}{l2}{y}
+      
+      % Transformer arrow
+      \transarrow{lhs}{\transformerDSG{z := x}}{rhs}
     \end{tikzpicture}
   \end{center}
-
-  No garbage collection because z is known to be nil right before this statement thanks to normalisation.
+  
+  \vphantom{NB: $gc$ can do some cleaning.}
 \end{frame}
 
 
 
 \begin{frame}[fragile]{$DSG$ Transformers: 5}
-  \transformerDSG{x := y.sel}$ \left( \tpl{E_v, E_s} \right) $ \\
-  \hspace{5em} $ \defeq \tpl{E_v \cup \left\{ \left[ \mbox{x}, \mbox{t} \right] \mid \left[ \mbox{y}, \mbox{s} \right] \in E_v \wedge \tpl{\mbox{s}, \mbox{sel}, \mbox{t}} \in E_s \right\}, E_s} $
+  \begin{flalign*}
+	  & \text{\transformerDSG{x := y.sel}} \left( \tpl{E_v, E_s} \right) & \\
+	  & \quad \quad \quad \quad \quad \quad \defeq \tpl{E_v \cup \left\{ \left[ \mbox{x}, \mbox{t} \right] \mid \left[ \mbox{y}, \mbox{s} \right] \in E_v \wedge \tpl{\mbox{s}, \mbox{sel}, \mbox{t}} \in E_s \right\}, E_s}
+  \end{flalign*}
 
   \vspace{1em}
 
-  Let $ \tpl{E_v, E_s} $ be\\
   \begin{center}
     \begin{tikzpicture}[semithick,
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
       \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
 
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      \matrix[graph, column sep=1em] (lhs) at (-8em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
@@ -796,17 +781,8 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
-    \end{tikzpicture}
-  \end{center}
-
-  \transformerDSG{z := y.cdr} results in\textcolor{LightGrey}{, after $gc$}:
-
-  \begin{center}
-    \begin{tikzpicture}[semithick,
-      ampersand replacement=\&, every edge/.append style={->}, >=latex]
-      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
-
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      
+      \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
@@ -822,27 +798,31 @@
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
       \vlabel{above}{l3}{z}
+      
+      % Transformer arrow
+      \transarrow{lhs}{\transformerDSG{z := y.cdr}}{rhs}
     \end{tikzpicture}
   \end{center}
-
-  No garbage collection because z is known to be nil right before this statement thanks to normalisation.
+  
+  \vphantom{NB: $gc$ can do some cleaning.}
 \end{frame}
 
 
 
 \begin{frame}[fragile]{$DSG$ Transformers: 6}
-  \transformerDSG{x.sel := y}$ \left( \tpl{E_v, E_s} \right) $ \\
-  \hspace{5em} $ \defeq \tpl{E_v, E_s \cup \left\{ \tpl{\mbox{s}, \mbox{sel}, \mbox{t}} \mid \left[ \mbox{x}, \mbox{s} \right] \in E_v \wedge \left[ \mbox{y}, \mbox{t} \right] \in E_v \right\}} $
+  \begin{flalign*}
+    & \text{\transformerDSG{x.sel := y}} \left( \tpl{E_v, E_s} \right) & \\
+    & \quad \quad \quad \quad \quad \quad \defeq \tpl{E_v, E_s \cup \left\{ \tpl{\mbox{s}, \mbox{sel}, \mbox{t}} \mid \left[ \mbox{x}, \mbox{s} \right] \in E_v \wedge \left[ \mbox{y}, \mbox{t} \right] \in E_v \right\}}
+  \end{flalign*}
 
   \vspace{1em}
-
-  Let $ \tpl{E_v, E_s} $ be\\
+  
   \begin{center}
     \begin{tikzpicture}[semithick,
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
       \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
 
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      \matrix[graph, column sep=1em] (lhs) at (-8em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
@@ -857,17 +837,8 @@
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
       \vlabel{above}{l3}{z}
-    \end{tikzpicture}
-  \end{center}
-
-  \transformerDSG{y.cdr := z} results in\textcolor{LightGrey}{, after $gc$}:
-
-  \begin{center}
-    \begin{tikzpicture}[semithick,
-      ampersand replacement=\&, every edge/.append style={->}, >=latex]
-      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
-
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      
+      \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
@@ -883,10 +854,13 @@
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
       \vlabel{above}{l3}{z}
+      
+      % Transformer arrow
+      \transarrow{lhs}{\transformerDSG{y.cdr := z}}{rhs}
     \end{tikzpicture}
   \end{center}
-
-  No garbage collection because y.cdr is known to be nil right before this statement thanks to normalisation.
+  
+  \vphantom{NB: $gc$ can do some cleaning.}
 \end{frame}
 
 \begin{frame}[fragile]{Collecting Semantics}
