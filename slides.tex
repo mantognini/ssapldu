@@ -50,7 +50,8 @@
 \usepackage[scaled]{beramono}
 %\usepackage{inconsolata}
 
-\colorlet{Insertion}{NavyBlue}
+%\colorlet{Insertion}{NavyBlue}
+\colorlet{Insertion}{blue}
 \colorlet{Modification}{ForestGreen}
 \colorlet{VariableEdge}{Cyan}
 \colorlet{SelectorEdge}{Plum}
@@ -200,7 +201,13 @@
   This analysis algorithm can be used to find \emph{aliases}, and therefore to optimise code (no alias means it can be more easily parallelised).
 \end{frame}
 
-\begin{frame}[fragile]{List Reversal: Normalisation}
+% CFG nodes. #1: node lumber, #2: statement.
+\newcommand{\stmt}[2]{%
+  \node{$v_{#1}$}; \&
+  \node[draw, minimum width=14em, minimum height=1.25em, inner sep=1.5pt] (v#1)
+  {\lstinline[basicstyle=\tiny\ttfamily]@#2@};}
+
+\begin{frame}[fragile]{List Reversal -- Normalisation}
   \begin{columns}[T]
 	  \column{.5\textwidth}
 	  \begin{onlyenv}<1>
@@ -223,7 +230,7 @@
 	  t := nil
 	  \end{lstlisting}
 	  \end{onlyenv}
-	  \begin{onlyenv}<2>
+	  \begin{onlyenv}<2->
 	  \begin{lstlisting}[mathescape=true]
 	  // x points to an unshared list
 	  y := nil
@@ -244,8 +251,44 @@
 	  \end{lstlisting}
         \end{onlyenv}
         \column{.5\textwidth}
-        \pause
-	\TODO{Fig 1. (c)}
+        \pause\pause
+        \begin{tikzpicture}[ampersand replacement=\&, >=latex]
+          \tiny
+          \matrix[row sep=.75em] {
+            \stmt{1}{y := nil} \\
+            \stmt{2}{} \\
+            \stmt{3}{t := nil} \\
+            \stmt{4}{t := y} \\
+            \stmt{5}{y := nil} \\
+            \stmt{6}{y := x} \\
+            \stmt{7}{t$_1$ := nil} \\
+            \stmt{8}{t$_1$ := x.cdr} \\
+            \stmt{9}{x := nil} \\
+            \stmt{10}{x := t$_1$} \\
+            \stmt{11}{y.cdr := nil} \\
+            \stmt{12}{y.cdr := t} \\
+            \stmt{13}{t$_1$ := nil} \\
+            \stmt{14}{t := nil} \\
+            \stmt{15}{} \\
+          };
+          \path[->]
+          (v1.north) +(0,+1em) edge (v1)
+          (v1) edge (v2)
+          (v2) edge (v3)
+          (v3) edge (v4)
+          (v4) edge (v5)
+          (v5) edge (v6)
+          (v6) edge (v7)
+          (v7) edge (v8)
+          (v8) edge (v9)
+          (v9) edge (v10)
+          (v10) edge (v11)
+          (v11) edge (v12)
+          (v13) edge (v14)
+          (v14) edge (v15);
+          \draw[->] ([yshift=.5ex]v2.east) -- +(2em, 0) |- (v13);
+          \draw[->] (v12.east) -- +(1em, 0) |- ([yshift=-.5ex]v2);
+        \end{tikzpicture}
   \end{columns}
 \end{frame}
 
@@ -277,10 +320,10 @@
 % contains extra node parameters (e.g. minimum width=1em creates cell
 % that is less wide).
 \newcommand{\cell}[4][]{%
-  \node[cellbox=#4, #1] (#2) {};%
+  \node[cellbox=#4, #1] (#2) {};
   \draw[draw=\celldraw{#4}, semithick] (#2.north) -- (#2.south);
-  \path (#2.west) -- coordinate[midway] (#2-car) (#2.center);%
-  \path (#2.east) -- coordinate[midway] (#2-cdr) (#2.center);%
+  \path (#2.west) -- coordinate[midway] (#2-car) (#2.center);
+  \path (#2.east) -- coordinate[midway] (#2-cdr) (#2.center);
   \node[font=\tiny, below=of #2.south west, anchor=north west, inner sep=1pt]
   {$#3$};}%
 
@@ -307,6 +350,13 @@
 \newcommand{\tcell}[1][]{
   \node[rectangle, minimum width=2em, minimum height=1em, inner sep=0,
   #1] {};}
+
+% A named "transparent" cons cell (can be used as a placeholder).
+\newcommand{\ntcell}[2][]{
+  \node[rectangle, minimum width=2em, minimum height=1em, inner sep=0,
+  #1] (#2) {};
+  \path (#2.west) -- coordinate[midway] (#2-car) (#2.center);
+  \path (#2.east) -- coordinate[midway] (#2-cdr) (#2.center);}
 
 
 % Variable label and edge. Arguments are position, node and label text.
@@ -336,9 +386,9 @@
 
 
 
-\begin{frame}[fragile]{Shape-Graph $SG = \langle E_v, E_s \rangle$}
+\begin{frame}[fragile]{Shape-Graph $SG = \tpl{E_v, E_s}$}
 
-	%\emph{Not} to be confused by a program control flow graph $G = (V, A)$
+	%\emph{Not} to be confused by a program control flow graph $G = \tpl{V, A}$
 	%\vspace{1em}
 	
 	What is a \textbf{shape-graph}?
@@ -353,7 +403,7 @@
 	\item edges are divided into 2 categories:
 		\begin{itemize}
     	\item[$\circ$] \textcolor{VariableEdge}{$E_v$: \textbf{variable-edges}} of the form $ \left[x, n\right] $
-    	\item[$\circ$] \textcolor{SelectorEdge}{$E_s$: \textbf{selector-edges}} of the form $ \langle s, sel, t \rangle $
+    	\item[$\circ$] \textcolor{SelectorEdge}{$E_s$: \textbf{selector-edges}} of the form $ \tpl{s, sel, t} $
 		\end{itemize}
 	\end{itemize}
 
@@ -391,7 +441,7 @@
 %  $E_v$ and $E_s$ are also used as functions:
 %  \begin{itemize}
 %  \item $E_v(x) \defeq \left\{ n \mid \left[x, n\right] \in E_v \right\}$
-%  \item $E_s(s, sel) \defeq \left\{ t \mid \langle s, sel, t \rangle \in E_s \right\}$
+%  \item $E_s(s, sel) \defeq \left\{ t \mid \tpl{s, sel, t} \in E_s \right\}$
 %  \end{itemize}
 %
 %  \vspace{1em}
@@ -414,7 +464,7 @@
   \vspace{1em}
 
   $ gc: SG \to SG $\\
-  $ gc\left(\langle E_v, E_s \rangle \right) \defeq \langle E_v, E'_s \rangle $ where $ E'_s \subseteq E_s $ and $ \langle s, sel, t \rangle \in E'_s $ if and only if there exists $ \left[ x, r \right] \in E_v $ such that there is a path of selector-edges in $ E_s $ from $r$ to $s$.
+  $ gc\left(\tpl{E_v, E_s} \right) \defeq \tpl{E_v, E'_s} $ where $ E'_s \subseteq E_s $ and $ \tpl{s, sel, t} \in E'_s $ if and only if there exists $ \left[ x, r \right] \in E_v $ such that there is a path of selector-edges in $ E_s $ from $r$ to $s$.
 
 	\begin{center}
     \begin{tikzpicture}[semithick,
@@ -465,7 +515,7 @@
 \end{frame}
 
 
-\begin{frame}[fragile]{$DSG$ transformers}
+\begin{frame}[fragile]{$DSG$ Transformers}
   A program statement is represented as a transform function on $DSG$, denoted \transformerDSG{st}.
 
   \vspace{1em}
@@ -482,12 +532,11 @@
   \end{enumerate}
 \end{frame}
 
-
-\begin{frame}[fragile]{$DSG$ transformers: 1}
+\begin{frame}[fragile]{$DSG$ Transformers: 1}
   \[
-  \text{\transformerDSG{x := nil}} \left( \langle E_v, E_s \rangle
-  \right) \quad \defeq \quad \langle E_v - \left\{\left[ \mbox{x}, *
-    \right]\right\}, E_s \rangle
+  \text{\transformerDSG{x := nil}} \left( \tpl{E_v, E_s} \right) \quad
+  \defeq \quad \tpl{E_v - \left\{\left[ \texttt{x}, * \right]\right\},
+    E_s}
   \]
 
   \vspace{1em}
@@ -538,10 +587,10 @@
 \end{frame}
 
 
-\begin{frame}[fragile]{$DSG$ transformers: 2}
+\begin{frame}[fragile]{$DSG$ Transformers: 2}
   \[
-  \mtransformerDSG{x.sel := nil} \left( \langle E_v, E_s \rangle \right)
-  \defeq \langle E_v, E_s - \left\{ \langle \mbox{s}, \mbox{sel}, * \rangle \mid \left[x,s\right] \in E_v \right\} \rangle
+  \text{\transformerDSG{x.sel := nil}} \left( \tpl{E_v, E_s} \right)
+  \defeq \tpl{E_v, E_s - \left\{ \tpl{s, \texttt{sel}, *} \mid \left[\texttt{x},s\right] \in E_v \right\}}
   \]
 
   \vspace{1em}
@@ -594,13 +643,13 @@
 
 
 
-\begin{frame}[fragile]{$DSG$ transformers: 3}
-  \transformerDSG{x := new}$ \left( \langle E_v, E_s \rangle \right) $ \\
-  \hspace{5em} $ \defeq \langle E_v \cup \left\{ \left[ \mbox{x}, \mbox{n}_{new} \right] \right\}, E_s \rangle $
+\begin{frame}[fragile]{$DSG$ Transformers: 3}
+  \transformerDSG{x := new}$ \left( \tpl{E_v, E_s} \right) $ \\
+  \hspace{5em} $ \defeq \tpl{E_v \cup \left\{ \left[ \mbox{x}, \mbox{n}_{new} \right] \right\}, E_s} $
 
   \vspace{1em}
 
-  Let $ \langle E_v, E_s \rangle $ be\\
+  Let $ \tpl{E_v, E_s} $ be\\
   \begin{center}
     \begin{tikzpicture}[semithick,
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
@@ -657,13 +706,13 @@
 
 
 
-\begin{frame}[fragile]{$DSG$ transformers: 4}
-  \transformerDSG{x := y}$ \left( \langle E_v, E_s \rangle \right) $ \\
-  \hspace{5em} $ \defeq \langle E_v \cup \left\{ \left[ \mbox{x}, \mbox{n} \right] \mid \left[ \mbox{y}, \mbox{n} \right] \in E_v \right\}, E_s \rangle $
+\begin{frame}[fragile]{$DSG$ Transformers: 4}
+  \transformerDSG{x := y}$ \left( \tpl{E_v, E_s} \right) $ \\
+  \hspace{5em} $ \defeq \tpl{E_v \cup \left\{ \left[ \mbox{x}, \mbox{n} \right] \mid \left[ \mbox{y}, \mbox{n} \right] \in E_v \right\}, E_s} $
 
   \vspace{1em}
 
-  Let $ \langle E_v, E_s \rangle $ be\\
+  Let $ \tpl{E_v, E_s} $ be\\
   \begin{center}
     \begin{tikzpicture}[semithick,
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
@@ -720,13 +769,13 @@
 
 
 
-\begin{frame}[fragile]{$DSG$ transformers: 5}
-  \transformerDSG{x := y.sel}$ \left( \langle E_v, E_s \rangle \right) $ \\
-  \hspace{5em} $ \defeq \langle E_v \cup \left\{ \left[ \mbox{x}, \mbox{t} \right] \mid \left[ \mbox{y}, \mbox{s} \right] \in E_v \wedge \langle \mbox{s}, \mbox{sel}, \mbox{t} \rangle \in E_s \right\}, E_s \rangle $
+\begin{frame}[fragile]{$DSG$ Transformers: 5}
+  \transformerDSG{x := y.sel}$ \left( \tpl{E_v, E_s} \right) $ \\
+  \hspace{5em} $ \defeq \tpl{E_v \cup \left\{ \left[ \mbox{x}, \mbox{t} \right] \mid \left[ \mbox{y}, \mbox{s} \right] \in E_v \wedge \tpl{\mbox{s}, \mbox{sel}, \mbox{t}} \in E_s \right\}, E_s} $
 
   \vspace{1em}
 
-  Let $ \langle E_v, E_s \rangle $ be\\
+  Let $ \tpl{E_v, E_s} $ be\\
   \begin{center}
     \begin{tikzpicture}[semithick,
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
@@ -781,13 +830,13 @@
 
 
 
-\begin{frame}[fragile]{$DSG$ transformers: 6}
-  \transformerDSG{x.sel := y}$ \left( \langle E_v, E_s \rangle \right) $ \\
-  \hspace{5em} $ \defeq \langle E_v, E_s \cup \left\{ \langle \mbox{s}, \mbox{sel}, \mbox{t} \rangle \mid \left[ \mbox{x}, \mbox{s} \right] \in E_v \wedge \left[ \mbox{y}, \mbox{t} \right] \in E_v \right\} \rangle $
+\begin{frame}[fragile]{$DSG$ Transformers: 6}
+  \transformerDSG{x.sel := y}$ \left( \tpl{E_v, E_s} \right) $ \\
+  \hspace{5em} $ \defeq \tpl{E_v, E_s \cup \left\{ \tpl{\mbox{s}, \mbox{sel}, \mbox{t}} \mid \left[ \mbox{x}, \mbox{s} \right] \in E_v \wedge \left[ \mbox{y}, \mbox{t} \right] \in E_v \right\}} $
 
   \vspace{1em}
 
-  Let $ \langle E_v, E_s \rangle $ be\\
+  Let $ \tpl{E_v, E_s} $ be\\
   \begin{center}
     \begin{tikzpicture}[semithick,
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
@@ -850,16 +899,16 @@
   \vspace{2em}
 
   Hence the collecting function $cv: V \to 2^{DSG}$ \\
-  $cv(v) \defeq \{ $ \transformerDSG{st($v_k$)} $ ( \cdots ( $ \transformerDSG{st($v_1$)} $ ( \langle \emptyset, \emptyset \rangle ))) \mid $ \\
+  $cv(v) \defeq \{ $ \transformerDSG{st($v_k$)} $ ( \cdots ( $ \transformerDSG{st($v_1$)} $ ( \tpl{\emptyset, \emptyset} ))) \mid $ \\
   \hspace{16em} $ \left[ v_1, \ldots, v_k \right] \in pathsTo(v) \} $
 
   \vspace{2em}
 
-  $V$ is the vertex set of the \textit{regular} control flow graph $G = (V, A)$.
+  $V$ is the vertex set of the \textit{regular} control flow graph $G = \tpl{V, A}$.
 \end{frame}
 
 
-\begin{frame}{Abstraction, abstractly}
+\begin{frame}{Abstraction, Abstractly}
   \vspace{-0.5em}
   \begin{center}
     \begin{tikzpicture}[semithick,ampersand replacement=\&, >=cm to]
@@ -885,16 +934,49 @@
 
 % 6. abstraction function with SSG
 %    - relation between quotient and alpha function(s)
-\begin{frame}{Abstraction -- helpers}
+\begin{frame}{Abstraction -- Helpers}
+  \begin{itemize}
+  \item Grouping nodes by variable labels
+    \begin{align*}
+      \alpha_s[DSG] &\colon shape\_nodes(DSG) \to \setof{n_X}{X
+        \subseteq PVar}\\
+      \alpha_s[DSG] &(r) \defeq n_{\setof{ x \in PVar }{[x, r] \in
+          E_v}}
+    \end{align*}
+  \item Initialisation of the sharing predicate
+    \begin{align*}
+      induced\_is\_shared[DSG] &\colon shape\_nodes(DSG) \to \set{T, F}\\
+      induced\_is\_shared[DSG] &(t) \defeq \abs{\set{\tpl{*, *, t} \in
+          E_s}} \leq 2
+    \end{align*}
+  \item Projection (a.k.a.\ quotienting) of SGs with respect to $f$
+    \begin{align*}
+      \tpl{SG, p} \downarrow f
+    \end{align*}
+  \end{itemize}
 \end{frame}
 
 % 6. abstraction function with SSG
 %    - relation between quotient and alpha function(s)
 \begin{frame}{Abstraction}
+  \begin{itemize}
+  \item Projection/quotient of a single DSG
+    \begin{align*}
+      \hat{\alpha} &\colon \mathcal{DSG} \to \mathcal{SSG}\\
+      \hat{\alpha} &(DSG) \defeq \tpl{DSG', induced\_is\_shared[DSG']}
+      \downarrow \alpha_s[DSG']\\
+      &\quad \text{where } DSG' = gc(DSG)
+    \end{align*}
+  \item Abstraction function
+    \begin{align*}
+      \alpha &\colon 2^{\mathcal{DSG}} \to \mathcal{SSG}\\
+      \alpha &(S) \defeq \bigsqcup_{DSG \in S} \hat{\alpha}(DSG)
+    \end{align*}
+  \end{itemize}
 \end{frame}
 
 % 7. commutative diagram for [st]DSG / alpha / [st]SSG
-\begin{frame}{Abstract interpretation, abstractly}
+\begin{frame}{Abstract Interpretation, Abstractly}
   \vspace{-0.5em}
   \begin{center}
     \begin{tikzpicture}[semithick,ampersand replacement=\&, >=cm to]
@@ -933,7 +1015,7 @@
 
 % 8. some examples for "abstract transformation rules" [st]SSG
 %   - an easy one - new
-\begin{frame}{Abstract interpretation -- examples}
+\begin{frame}{Abstract Interpretation -- Examples}
   Allocating a new node.
 
   \vspace{1em}
@@ -1016,7 +1098,7 @@
 
 % 8. some examples for "abstract transformation rules" [st]SSG
 %   - an easy one - assigning nil to fields
-\begin{frame}[fragile]{Abstract interpretation -- examples (cont.)}
+\begin{frame}[fragile]{Abstract Interpretation -- Examples (cont.)}
   Assigning @nil@ to a field.
 
   \vspace{1em}
@@ -1111,7 +1193,7 @@
 
 % 8. some examples for "abstract transformation rules" [st]SSG
 %   - assigning nil to a variable (merges nodes)
-\begin{frame}[fragile]{Abstract interpretation -- examples (cont.)}
+\begin{frame}[fragile]{Abstract Interpretation -- Examples (cont.)}
   Assigning @nil@ to a variable.
 
   \vspace{1em}
@@ -1203,7 +1285,7 @@
 
 % 8. some examples for "abstract transformation rules" [st]SSG
 %   - materialisation
-\begin{frame}{Abstract interpretation -- examples (cont.)}
+\begin{frame}{Abstract Interpretation -- Examples (cont.)}
   Materialising a node $n_y$ from the summary node $n_\emptyset$.
 
   \vspace{1em}
@@ -1296,7 +1378,7 @@
 
 % 8. some examples for "abstract transformation rules" [st]SSG
 %   - variable assignment
-\begin{frame}{Abstract interpretation -- examples (cont.)}
+\begin{frame}{Abstract Interpretation -- Examples (cont.)}
 
   \vspace{.5em}
   Variable assignment.
@@ -1431,7 +1513,7 @@
 
 % 8. some examples for "abstract transformation rules" [st]SSG
 %   - strong nullification
-\begin{frame}{Abstract interpretation -- examples (cont.)}
+\begin{frame}{Abstract Interpretation -- Examples (cont.)}
 
   \vspace{.5em}
   Strong nullification.
@@ -1558,7 +1640,7 @@
 
 % 9. (general idea behind 8.)
 % TODO: not sure what this is supposed to be...
-%\begin{frame}{Abstract interpretation, abstractly}
+%\begin{frame}{}
 %\end{frame}
 
 
@@ -1568,7 +1650,8 @@
 
   From $v_1$ to $v_{11}$ \textit{without entering} the loop. \\
   Executing \transformer{e.cdr := nil}{} -- $n_{\{t\}}$ is \textbf{not} shared.
-  \vspace{1.5em} % TODO need better alignment (vertical & horizontal)
+  %\vspace{1.5em} % TODO need better alignment (vertical & horizontal)
+
   \begin{center}
     \begin{tikzpicture}[semithick,
 %      level 1/.style={onslide=<-0>{transparent}},
@@ -1581,22 +1664,26 @@
 %      \begin{scope}[level 1]
 	      \matrix[graph, column sep=1em] (g1)
 	      {
-	         \&\&            \&                      \& \acons{t}{\{t\}} \& \acons{phi}{\emptyset} \\
-	         \&\&            \& \acons{xy}{\{x, y\}} \& \acons{e}{\{e\}} \&                        \\
+	         \ntcell{x}      \& \ntcell{yz}          \& \acons{t}{\{t\}} \& \acons{phi}{\emptyset} \\
+	                         \& \acons{xy}{\{x, y\}} \& \acons{e}{\{e\}} \&                        \\
 	      };
 
 	      % Selector edges.
 	      \path[->]
 	      (t-cdr) edge (phi)
-	      (xy-cdr) edge (t);
+	      (xy-cdr) edge (t.south west);
 	      % loop for phi
 	      \draw[->] (phi-cdr) -| ++(1em, 1em) -| (phi.north);
+	      % invisible loops
+	      \draw[->, transparent] (x-cdr) -| ++(0, 2em) -| ([xshift=-1ex]phi.north);
 
 	      % Variable egdes.
 	      \vlabelwy{xy}{x}{1.5mm}
 	      \vlabelwy{xy}{y}{-1.5mm}
 	      \vlabelwy{t}{t}{1.5mm}
 	      \vlabelwy{e}{e}{0mm}
+              % Invisible variable edge.
+              \node[labelnode, left=of x] {$\phantom{x}$};
 %      \end{scope}
     \end{tikzpicture}
   \end{center}
@@ -1672,7 +1759,7 @@
 	      \path[->]
 	      (t-cdr) edge (phi)
 	      (x-cdr) edge (yz)
-	      (xy-cdr) edge (t)
+	      (xy-cdr) edge (t.south west)
 	      (yz-cdr) edge (t);
 	      % loops
 	      \draw[->] (x-cdr) -| ++(0, 2em) -| ([xshift=-1ex]phi.north);
@@ -1719,7 +1806,7 @@
 	      \path[->]
 	      (t-cdr) edge (phi)
 	      (x-cdr) edge (yz)
-	      (xy-cdr) edge (t)
+	      (xy-cdr) edge (t.south west)
 	      (yz-cdr) edge (t)
 	      (e-cdr) edge[RubineRed] ([xshift=1ex]t.south);
 	      % loops
@@ -1744,7 +1831,7 @@
   \only<5>{
 
   From $v_1$ to $v_{13}$ by all possible paths. \\
-  Executing \transformer{y.cdr := nil}{} -- \textbf{strong nullification}.
+  Executing \transformer{y.cdr := nil}{} -- \textbf{strong nullification}.$\phantom{n_{\set{t}}}$
 
   \begin{center}
     \begin{tikzpicture}[semithick,
@@ -1767,7 +1854,7 @@
 	      \path[->]
 	      (t-cdr) edge (phi)
 	      (x-cdr) edge (yz)
-	      (xy-cdr) edge[LightGrey] (t)
+	      (xy-cdr) edge[LightGrey] (t.south west)
 	      (yz-cdr) edge[LightGrey] (t)
 	      (e-cdr) edge ([xshift=1ex]t.south);
 	      % loops
@@ -1798,8 +1885,9 @@
   \item[Representing Definitely Circular Structures] with extra special nodes ($n_{atom}, n_{nil}, n_{uninit}$), definitely cyclic data structures can be modelled.
   \end{description}
 \end{frame}
+\fi
 
-
+\if0
 \begin{frame}[fragile,t]{Graph example}
   \vspace{-0.5em}\uncover<2-4>{ % this diagram is visible in slides 2-4.
   \begin{center}
