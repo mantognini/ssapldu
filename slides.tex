@@ -55,6 +55,7 @@
 \colorlet{VariableEdge}{Cyan}
 \colorlet{SelectorEdge}{Plum}
 \colorlet{LightGrey}{gray!40}
+\colorlet{LightGreen}{green!20}
 
 
 % Scala listings.  Use colored Scala style by default.
@@ -292,6 +293,10 @@
 % A concrete (green) cons cell.
 \newcommand{\ccons}[3][]{\cons[#1]{#2}{#3}{green}}
 
+% A concrete unreachable cons cell - ready to be garbage collected
+\newcommand{\cucons}[3][]{\cons[#1]{#2}{#3}{LightGreen}}
+% pattern=soft crosshatch ?
+
 % An abstract (blue) cons cell.
 \newcommand{\acons}[3][]{\cons[#1]{#2}{n_{#3}}{blue}}
 
@@ -479,84 +484,6 @@
 
 
 \begin{frame}[fragile]{$DSG$ transformers: 1}
-  \transformerDSG{x := nil}$ \left( \langle E_v, E_s \rangle \right) $ \\
-  \hspace{5em} $ \defeq \langle E_v - \left\{\left[ \mbox{x}, * \right]\right\}, E_s \rangle $
-
-  \vspace{1em}
-
-  Let $ \langle E_v, E_s \rangle $ be\\
-  \begin{center}
-    \begin{tikzpicture}[semithick,
-      ampersand replacement=\&, every edge/.append style={->}, >=latex]
-      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
-
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
-      {
-        \ccons[minimum width=1em]{l1}{l_1} \&
-        \ccons[minimum width=1em]{l2}{l_2} \&
-        \ccons[minimum width=1em]{l3}{l_3} \\
-      };
-
-      % Selector edges.
-      \path[->]
-      (l1-cdr) edge (l2)
-      (l2-cdr) edge (l3);
-
-      % Variable egdes.
-      \vlabel{left}{l1}{x}
-      \vlabel{above}{l2}{y}
-    \end{tikzpicture}
-  \end{center}
-
-  \transformerDSG{x := nil} results in, after $gc$:
-
-%  \begin{center}
-%    \begin{tikzpicture}[semithick,
-%      ampersand replacement=\&, every edge/.append style={->}, >=latex]
-%      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
-%
-%      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
-%      {
-%        \ccons[minimum width=1em]{l1}{l_1} \&
-%        \ccons[minimum width=1em]{l2}{l_2} \&
-%        \ccons[minimum width=1em]{l3}{l_3} \\
-%      };
-%
-%      % Selector edges.
-%      \path[->]
-%      (l1-cdr) edge (l2)
-%      (l2-cdr) edge (l3);
-%
-%      % Variable egdes.
-%      \vlabel{above}{l2}{y}
-%    \end{tikzpicture}
-%  \end{center}
-%
-%  and after $gc$:
-
-  \begin{center}
-    \begin{tikzpicture}[semithick,
-      ampersand replacement=\&, every edge/.append style={->}, >=latex]
-      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
-
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
-      {
-        \& \&                              \&
-        \ccons[minimum width=1em]{l2}{l_2} \&
-        \ccons[minimum width=1em]{l3}{l_3} \\
-      };
-
-      % Selector edges.
-      \path[->]
-      (l2-cdr) edge (l3);
-
-      % Variable egdes.
-      \vlabel{above}{l2}{y}
-    \end{tikzpicture}
-  \end{center}
-\end{frame}
-
-\begin{frame}[fragile]{$DSG$ transformers: 1 (simplified)}
   \[
   \text{\transformerDSG{x := nil}} \left( \langle E_v, E_s \rangle
   \right) \quad \defeq \quad \langle E_v - \left\{\left[ \mbox{x}, *
@@ -588,6 +515,7 @@
 
       \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
+        \cucons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
         \ccons[minimum width=1em]{l3}{l_3} \\
       };
@@ -600,31 +528,31 @@
       \vlabel{above}{l2}{y}
 
       % Transformer arrow
-      \transarrow{lhs}{$gc \comp$\transformerDSG{x := nil}}{rhs}
+      \transarrow{lhs}{\transformerDSG{x := nil}}{rhs}
     \end{tikzpicture}
   \end{center}
 
   \vspace{1em}
 
-  (NB: here, $\mtransformerDSG{-}$ is followed by a call to $gc$).
-  \TODO{The $gc$ thing might be confusing. Remove and explain during
-    the talk?}
+  NB: $gc$ can do some cleaning.
 \end{frame}
 
 
 \begin{frame}[fragile]{$DSG$ transformers: 2}
-  \transformerDSG{x.sel := nil}$ \left( \langle E_v, E_s \rangle \right) $ \\
-  \hspace{5em} $ \defeq \langle E_v, E_s - \left\{ \langle \mbox{s}, \mbox{sel}, * \rangle \mid \left[x,s\right] \in E_v \right\} \rangle $
+  \[
+  \mtransformerDSG{x.sel := nil} \left( \langle E_v, E_s \rangle \right)
+  \defeq \langle E_v, E_s - \left\{ \langle \mbox{s}, \mbox{sel}, * \rangle \mid \left[x,s\right] \in E_v \right\} \rangle
+  \]
 
   \vspace{1em}
 
-  Let $ \langle E_v, E_s \rangle $ be\\
   \begin{center}
     \begin{tikzpicture}[semithick,
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
       \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
 
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      % BEFORE
+      \matrix[graph, column sep=1em] (lhs) at (-8em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
@@ -639,21 +567,13 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
-    \end{tikzpicture}
-  \end{center}
-
-  \transformerDSG{y.cdr := nil} results in, after $gc$:
-
-  \begin{center}
-    \begin{tikzpicture}[semithick,
-      ampersand replacement=\&, every edge/.append style={->}, >=latex]
-      \Large % <-- determines scale of diagram. try \LARGE, \Huge, \small...
-
-      \matrix[graph, column sep=1em] (g1) %<-- general column spacing
+      
+      % AFTER
+      \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
         \ccons[minimum width=1em]{l2}{l_2} \&
-        \&                                 \\
+        \cucons[minimum width=1em]{l3}{l_3} \\
       };
 
       % Selector edges.
@@ -663,8 +583,13 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
+      
+      % Transformer arrow
+      \transarrow{lhs}{\transformerDSG{y.cdr := nil}}{rhs}
     \end{tikzpicture}
   \end{center}
+  
+  NB: $gc$ can do some cleaning.
 \end{frame}
 
 
