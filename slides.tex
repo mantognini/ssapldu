@@ -77,7 +77,7 @@
 
 % Using TikZ for diagrams
 \usepackage{tikz}
-\usetikzlibrary{arrows,fit,matrix,positioning}
+\usetikzlibrary{arrows,fit,matrix,positioning,decorations.pathreplacing}
 \usepackage{tikz-cd} % for CM-arrow tips.
 
 % Don't use externalize with gradients!!!
@@ -201,11 +201,14 @@
   This analysis algorithm can be used to find \emph{aliases}, and therefore to optimise code (no alias means it can be more easily parallelised).
 \end{frame}
 
-% CFG nodes. #1: node lumber, #2: statement.
+% CFG nodes. #1: node number, #2: statement.
 \newcommand{\stmt}[2]{%
   \node{$v_{#1}$}; \&
   \node[draw, minimum width=14em, minimum height=1.25em, inner sep=1.5pt] (v#1)
   {\lstinline[basicstyle=\tiny\ttfamily]@#2@};}
+  
+\newcommand{\stmtgroup}[3]{%
+  \draw [thick, Blue, decorate, decoration={brace}]([xshift=3em]#1.north east) -- ([xshift=3em]#2.south east) node[black, midway, xshift=0.5em, anchor=west] {#3};}
 
 \begin{frame}[fragile]{List Reversal -- Normalisation}
   \begin{columns}[T]
@@ -1621,12 +1624,105 @@
   \end{center}
 \end{frame}
 
-% 9. (general idea behind 8.)
-% TODO: not sure what this is supposed to be...
-%\begin{frame}{}
-%\end{frame}
 
+\begin{frame}[fragile]{List Insertion -- Normalisation}
+  \begin{columns}[T]
+	  \column{.5\textwidth}
+	  \begin{onlyenv}<1>
+	  \begin{lstlisting}[mathescape]
+	  // x points to an unshared list
+	  
+	  y := x
+	  while y.cdr $ \neq $ nil $ \wedge \ldots $ do
 
+	    z := y.cdr
+
+	    y := z
+	  od
+
+	  t := y.cdr
+
+	  e.cdr := t
+
+	  y.cdr := e
+	  t := nil
+	  z := nil
+	  e := nil
+	  y := nil
+	  \end{lstlisting}
+	  \end{onlyenv}
+	  \begin{onlyenv}<2->
+	  \begin{lstlisting}[mathescape]
+	  // x points to an unshared list
+	  @y := nil@
+	  y := x
+	  while y.cdr $ \neq $ nil $ \wedge \ldots $ do
+	    @z := nil@
+	    z := y.cdr
+	    @y := nil@
+	    y := z
+	  od
+	  @t := nil@
+	  t := y.cdr
+	  @e.cdr := nil@
+	  e.cdr := t
+	  @y.cdr := nil@
+	  y.cdr := e
+	  t := nil
+	  z := nil
+	  e := nil
+	  y := nil
+	  \end{lstlisting}
+    \end{onlyenv}
+        \column{.5\textwidth}
+        \pause\pause
+        \begin{tikzpicture}[ampersand replacement=\&, >=latex,
+          level 2/.style={onslide=<-3>{transparent}}]
+        
+          \tiny
+          \matrix[row sep=.75em] {
+            \stmt{1}{y := nil} \\
+            \stmt{2}{y := x} \\
+            \stmt{3}{} \\
+            \stmt{4}{z := nil} \\
+            \stmt{5}{z := y.cdr} \\
+            \stmt{6}{y := nil} \\
+            \stmt{7}{y := z} \\
+            \stmt{8}{t := nil} \\
+            \stmt{9}{t := y.cdr} \\
+            \stmt{10}{e.cdr := nil} \\
+            \stmt{11}{e.cdr := t} \\
+            \stmt{12}{y.cdr := nil} \\
+            \stmt{13}{y.cdr := e} \\
+            \stmt{14-18}{...} \\
+          };
+          \path[->]
+          (v1.north) +(0,+1em) edge (v1)
+          (v1) edge (v2)
+          (v2) edge (v3)
+          (v3) edge (v4)
+          (v4) edge (v5)
+          (v5) edge (v6)
+          (v6) edge (v7)
+          (v8) edge (v9)
+          (v9) edge (v10)
+          (v10) edge (v11)
+          (v11) edge (v12)
+          (v12) edge (v13)
+          (v13) edge (v14-18);
+          \draw[->] ([yshift=.5ex]v3.east) -- +(2em, 0) |- (v8);
+          \draw[->] (v7.east) -- +(1em, 0) |- ([yshift=-.5ex]v3);
+
+          \begin{scope}[level 2]
+	          \stmtgroup{v1}{v2}{init}
+	          \stmtgroup{v3}{v3}{branch}
+	          \stmtgroup{v4}{v7}{loop}
+	          \stmtgroup{v8}{v14-18}{rest}
+	        \end{scope}
+        \end{tikzpicture}
+        \pause
+  \end{columns}
+\end{frame}
 
 \begin{frame}[fragile]{Sharing}
   \only<1>{
