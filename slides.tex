@@ -115,7 +115,7 @@
 
 \author[Sagiv~et~al.]{%
   {\small Authors}\\ \vspace{1ex}
-  Shmuel Sagiv, Thomas W. Reps, Reinhard Wilhelm \\
+  Molly Sagiv, Thomas W. Reps, Reinhard Wilhelm \\
   \vspace{1em}
   {\small Presenters}\\ \vspace{1ex}
   Marco Antognini, Sandro Stucki
@@ -1952,21 +1952,21 @@
     \end{tikzpicture}
   \end{center}
 
-   %% This one is only transparant!
   \begin{tikzpicture}[ampersand replacement=\&, >=latex]
     \tiny
-    \matrix[row sep=1.5em, transparent] {
+    \matrix[row sep=1.5em] {
         \stmtmini{init} \\
         \stmtmini{loop} \\
         \stmtmini{rest} \\
       };
       
-    \path[transparent, ->, thick] 
+    \path[ImportantPath, ->, thick] 
         (init.north) +(0,+2em) edge (init)
         (init) edge (loop)
         (loop) edge (rest);
 
-    \draw[transparent, ->, thick] (init.east) -- +(2em, 0) |- (rest);
+    \draw[ImportantPath, ->, thick] (init.east) -- +(2em, 0) |- (rest);
+    \draw[ImportantPath, ->, thick] (loop.east) -| ++(1em, 2em) -| ([xshift=1em]loop.north);
   \end{tikzpicture}
   }
 
@@ -2017,21 +2017,21 @@
     \end{tikzpicture}
   \end{center}
   
-     %% This one is only transparant!
     \begin{tikzpicture}[ampersand replacement=\&, >=latex]
       \tiny
-      \matrix[row sep=1.5em, transparent] {
+      \matrix[row sep=1.5em] {
           \stmtmini{init} \\
           \stmtmini{loop} \\
           \stmtmini{rest} \\
         };
         
-      \path[transparent, ->, thick] 
+      \path[ImportantPath, ->, thick] 
           (init.north) +(0,+2em) edge (init)
           (init) edge (loop)
           (loop) edge (rest);
   
-      \draw[transparent, ->, thick] (init.east) -- +(2em, 0) |- (rest);
+      \draw[ImportantPath, ->, thick] (init.east) -- +(2em, 0) |- (rest);
+      \draw[ImportantPath, ->, thick] (loop.east) -| ++(1em, 2em) -| ([xshift=1em]loop.north);
     \end{tikzpicture}
   }
 \end{frame}
