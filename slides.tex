@@ -1838,6 +1838,7 @@
             (init.north) +(0,+2em) edge (init)
             (init) edge (loop)
             (loop) edge (rest);
+        \draw[ImportantPath, ->, thick] (loop.east) -| ++(1em, 2em) -| ([xshift=1em]loop.north);
     \end{tikzpicture}
   }
 
@@ -1900,6 +1901,7 @@
           (loop) edge (rest);
 
       \draw[ImportantPath, ->, thick] (init.east) -- +(2em, 0) |- (rest);
+      \draw[ImportantPath, ->, thick] (loop.east) -| ++(1em, 2em) -| ([xshift=1em]loop.north);
     \end{tikzpicture}
   }
 
