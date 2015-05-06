@@ -1635,7 +1635,8 @@
 	  \column{.5\textwidth}
 	  \begin{onlyenv}<1>
 	  \begin{lstlisting}[mathescape]
-	  // x points to an unshared list
+	  // x is an unshared list
+	  // e the element to insert
 	  
 	  y := x
 	  while y.cdr $ \neq $ nil $ \wedge \ldots $ do
@@ -1658,7 +1659,8 @@
 	  \end{onlyenv}
 	  \begin{onlyenv}<2->
 	  \begin{lstlisting}[mathescape]
-	  // x points to an unshared list
+	  // x is an unshared list
+	  // e the element to insert
 	  @y := nil@
 	  y := x
 	  while y.cdr $ \neq $ nil $ \wedge \ldots $ do
