@@ -71,11 +71,6 @@
 \lstnewenvironment{lstscalasmall}{%
   \lstset{style=scala-color,basicstyle=\scriptsize\tt}}{}
 
-% Algorithms/pseud-ocode typesetting
-%\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
-%\usepackage[slide,vlined,linesnumbered]{algorithm2e}
-%\usepackage{float}
-
 % Using TikZ for diagrams
 \usepackage{tikz}
 \usetikzlibrary{arrows,fit,matrix,positioning,decorations.pathreplacing}
@@ -111,7 +106,7 @@
 
 \title{Solving Shape-Analysis Problems in Languages with Destructive Updating}
 
-\subtitle{SAV Presentation}
+\subtitle{\#SAV Presentation}
 
 \author[Sagiv~et~al.]{%
   {\small Authors}\\ \vspace{1ex}
@@ -120,16 +115,6 @@
   {\small Presenters}\\ \vspace{1ex}
   Marco Antognini, Sandro Stucki
 }
-
-% \institute[LAMP, Oracle]{%
-%   \inst{1} LAMP, EPFL \and%
-%   \inst{2} Oracle Labs}
-
-% Logos
-% \logo{
-%   \includegraphics[height=7mm]{somelogo.png}\hspace{1mm}
-%   \includegraphics[height=7mm]{someotherlogo}
-% }
 
 % To show the TOC at the beginning of each section, uncomment this:
 % \AtBeginSection[]
@@ -211,7 +196,7 @@
   \node{$v_{#1}$}; \&
   \node[draw, minimum width=14em, minimum height=1.25em, inner sep=1.5pt] (v#1)
   {\lstinline[basicstyle=\tiny\ttfamily]@#2@};}
-  
+
 \newcommand{\stmtgroup}[3]{%
   \draw [thick, ImportantPath, decorate, decoration={brace}]([xshift=3em]#1.north east) -- ([xshift=3em]#2.south east) node[black, midway, xshift=0.5em, anchor=west] {#3};}
 
@@ -300,9 +285,6 @@
   \end{columns}
 \end{frame}
 
-
-%%%% The following is a crazy TikZ slide combining tree/graph drawing
-%%%% code, etc.
 
 \newcommand{\celldraw}[1]{#1!80!black!80!white}%
 \newcommand{\cellfill}[1]{#1!80!black!30!white}%
@@ -398,7 +380,7 @@
 
 	%\emph{Not} to be confused by a program control flow graph $G = \tpl{V, A}$
 	%\vspace{1em}
-	
+
 	What is a \textbf{shape-graph}?
 
 	\begin{itemize}
@@ -460,7 +442,7 @@
   \item no node has a selector pointing to more than one node%: $ |E_s(*, *)| \leq 1$
   \end{enumerate}
 
-  \vspace{1em}  
+  \vspace{1em}
   In other words:\\
   \hspace{1.5em} It is deterministic when edges are behaving like \emph{pointers}.
 \end{frame}
@@ -498,7 +480,7 @@
 
       % Variable egdes.
       \vlabel{left}{l1}{x}
-      
+
       % After applying gc
       \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
@@ -515,7 +497,7 @@
 
       % Variable egdes.
       \vlabel{left}{l1}{x}
-      
+
       % Transformer arrow
       \transarrow{lhs}{$gc$}{rhs}
     \end{tikzpicture}
@@ -621,7 +603,7 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
-      
+
       % AFTER
       \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
@@ -637,12 +619,12 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
-      
+
       % Transformer arrow
       \transarrow{lhs}{\transformerDSG{y.cdr := nil}}{rhs}
     \end{tikzpicture}
   \end{center}
-  
+
   NB: $gc$ can do some cleaning.
 \end{frame}
 
@@ -676,7 +658,7 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
-      
+
       \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
@@ -694,12 +676,12 @@
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
       \vlabel{above}{l4}{z}
-      
+
       % Transformer arrow
       \transarrow{lhs}{\transformerDSG{z := new}}{rhs}
     \end{tikzpicture}
   \end{center}
-  
+
   \vphantom{NB: $gc$ can do some cleaning.}
 \end{frame}
 
@@ -733,7 +715,7 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
-      
+
       \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
@@ -750,12 +732,12 @@
       \vlabel{left}{l1}{x}
       \vlabel{above}{l1}{z}
       \vlabel{above}{l2}{y}
-      
+
       % Transformer arrow
       \transarrow{lhs}{\transformerDSG{z := x}}{rhs}
     \end{tikzpicture}
   \end{center}
-  
+
   \vphantom{NB: $gc$ can do some cleaning.}
 \end{frame}
 
@@ -789,7 +771,7 @@
       % Variable egdes.
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
-      
+
       \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
@@ -806,12 +788,12 @@
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
       \vlabel{above}{l3}{z}
-      
+
       % Transformer arrow
       \transarrow{lhs}{\transformerDSG{z := y.cdr}}{rhs}
     \end{tikzpicture}
   \end{center}
-  
+
   \vphantom{NB: $gc$ can do some cleaning.}
 \end{frame}
 
@@ -824,7 +806,7 @@
   \end{flalign*}
 
   \vspace{1em}
-  
+
   \begin{center}
     \begin{tikzpicture}[semithick,
       ampersand replacement=\&, every edge/.append style={->}, >=latex]
@@ -845,7 +827,7 @@
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
       \vlabel{above}{l3}{z}
-      
+
       \matrix[graph, column sep=1em] (rhs) at (7em, 0)
       {
         \ccons[minimum width=1em]{l1}{l_1} \&
@@ -862,12 +844,12 @@
       \vlabel{left}{l1}{x}
       \vlabel{above}{l2}{y}
       \vlabel{above}{l3}{z}
-      
+
       % Transformer arrow
       \transarrow{lhs}{\transformerDSG{y.cdr := z}}{rhs}
     \end{tikzpicture}
   \end{center}
-  
+
   \vphantom{NB: $gc$ can do some cleaning.}
 \end{frame}
 
@@ -1550,16 +1532,16 @@
       %%% SSG 1 (top right) %%%
       \matrix[graph] (s1) at (6em, 4em)
       {
-        \acons[minimum width=1.5em]{x}{\{x\}} \\
-        \acons[minimum width=1.5em]{xy}{\{x,y\}} \&
-        \acons[minimum width=1.5em]{y}{\{y\}} \&
+        \acons[minimum width=1.5em]{x}{\{x\}} \&
+        \acons[minimum width=1.5em]{y}{\{y\}} \\
+        \acons[minimum width=1.5em]{xy}{\{x,y\}} \&  \&
         \acons[minimum width=1.5em]{e}{\emptyset} \\
       };
 
       % Selector edges.
       \path[->]
       (x-cdr) edge (y)
-      (xy-cdr) edge (y)
+      (xy-cdr) edge (e)
       (y-cdr) edge (e);
       \draw[->] (e-cdr) -| ++(1em, 1em) -| (e.north);
 
@@ -1602,10 +1584,10 @@
       %%% SSG 2 (bottom right) %%%
       \matrix[graph] (s2) at (6em, -4em)
       {
-        \tcell[minimum width=1.5em, minimum height=0.25em] \\
-        \acons[minimum width=1.5em]{x}{\{x\}} \\
-        \acons[minimum width=1.5em]{xy}{\{x,y\}} \&
-        \acons[minimum width=1.5em]{y}{\{y\}} \&
+        \tcell[minimum width=1.5em, minimum height=1em] \\
+        \acons[minimum width=1.5em]{x}{\{x\}} \&
+        \acons[minimum width=1.5em]{y}{\{y\}} \\
+        \acons[minimum width=1.5em]{xy}{\{x,y\}} \& \&
         \acons[minimum width=1.5em]{e}{\emptyset} \\
       };
 
@@ -1637,7 +1619,7 @@
 	  \begin{lstlisting}[mathescape]
 	  // x is an unshared list
 	  // e the element to insert
-	  
+
 	  y := x
 	  while y.cdr $ \neq $ nil $ \wedge \ldots $ do
 
@@ -1685,7 +1667,7 @@
         \pause\pause
         \begin{tikzpicture}[ampersand replacement=\&, >=latex,
           level 2/.style={onslide=<-3>{transparent}}]
-        
+
           \tiny
           \matrix[row sep=.75em] {
             \stmt{1}{y := nil} \\
@@ -1736,7 +1718,6 @@
 
   From $v_1$ to $v_{11}$ \textit{without entering} the loop. \\
   Executing \transformer{e.cdr := nil}{} -- $n_{\{t\}}$ is \textbf{not} shared.
-  %\vspace{1.5em} % TODO need better alignment (vertical & horizontal)
 
   \begin{center}
     \begin{tikzpicture}[semithick,
@@ -1780,7 +1761,7 @@
         \stmtmini{loop} \\
         \stmtmini{rest} \\
       };
-      
+
       \path[ImportantPath, ->, thick] (init.north) +(0,+2em) edge (init);
       \draw[ImportantPath, ->, thick] (init.east) -- +(2em, 0) |- (rest);
   \end{tikzpicture}
@@ -1835,8 +1816,8 @@
           \stmtmini{loop} \\
           \stmtmini{rest} \\
         };
-        
-        \path[ImportantPath, ->, thick] 
+
+        \path[ImportantPath, ->, thick]
             (init.north) +(0,+2em) edge (init)
             (init) edge (loop)
             (loop) edge (rest);
@@ -1896,8 +1877,8 @@
           \stmtmini{loop} \\
           \stmtmini{rest} \\
         };
-        
-      \path[ImportantPath, ->, thick] 
+
+      \path[ImportantPath, ->, thick]
           (init.north) +(0,+2em) edge (init)
           (init) edge (loop)
           (loop) edge (rest);
@@ -1961,8 +1942,8 @@
         \stmtmini{loop} \\
         \stmtmini{rest} \\
       };
-      
-    \path[ImportantPath, ->, thick] 
+
+    \path[ImportantPath, ->, thick]
         (init.north) +(0,+2em) edge (init)
         (init) edge (loop)
         (loop) edge (rest);
@@ -2018,7 +1999,7 @@
 %      \end{scope}
     \end{tikzpicture}
   \end{center}
-  
+
     \begin{tikzpicture}[ampersand replacement=\&, >=latex]
       \tiny
       \matrix[row sep=1.5em] {
@@ -2026,12 +2007,12 @@
           \stmtmini{loop} \\
           \stmtmini{rest} \\
         };
-        
-      \path[ImportantPath, ->, thick] 
+
+      \path[ImportantPath, ->, thick]
           (init.north) +(0,+2em) edge (init)
           (init) edge (loop)
           (loop) edge (rest);
-  
+
       \draw[ImportantPath, ->, thick] (init.east) -- +(2em, 0) |- (rest);
       \draw[ImportantPath, ->, thick] (loop.east) -| ++(1em, 2em) -| ([xshift=1em]loop.north);
     \end{tikzpicture}
@@ -2110,87 +2091,10 @@
 \end{frame}
 \fi
 
-
-
-%\begin{frame}[fragile]{Some citations and maths}
-%  The \emph{Probability Monad} is a variant of the @List@
-%  monad.\footnote{See e.g.\ \cite{RamseyP2002popl,Gibbons2012utp}}
-%
-%  \begin{lstlisting}
-%  type Dist[+A] = List[(A, Double)]
-%  final case class Rand[+A](dist: Dist[A]) {
-%    // Monadic "bind"
-%    def flatMap[B](f: A => Rand[B]): Rand[B] = Rand(
-%      for ((v, p) <- dist; (w, q) <- f(v).dist)
-%      yield (w, q * p))
-%    ...
-%  }
-%  \end{lstlisting}
-%  Computations are sequenced using the \emph{chain rule}:
-%  \[
-%  \Pr\{ f(X) = y \} = \sum_{x} \Pr\{ f(X) = y \,|\, X = x \} \Pr\{ X =
-%  x \}
-%  \]
-%\end{frame}
-
 \begin{frame}{Thank you!}
   \begin{center}
     \Huge Questions?
   \end{center}
 \end{frame}
 
-%%%  Backup slides  %%%
-
-%\appendix
-%\newcounter{finalframe}
-%\setcounter{finalframe}{\value{framenumber}}
-%
-%\begin{frame}[noframenumbering]
-%  \begin{center}
-%    \emph{\LARGE Additional slides}
-%  \end{center}
-%\end{frame}
-%
-%\begin{frame}[fragile]{The \texttt{grassModel} in Odds}
-%  \setcounter{framenumber}{\value{finalframe}}%
-%  \begin{lstlisting}
-%  trait CodeExample extends Stuff {
-%    def grassModel: Rand[Boolean] = {
-%      val rain       = flip(0.3)
-%      val sprinkler  = flip(0.5)
-%      val grassIsWet =
-%        flip(0.9) && rain      ||
-%        flip(0.8) && sprinkler ||
-%        flip(0.1)
-%      if (grassIsWet) rain else never
-%    }
-%  }
-%  \end{lstlisting}
-%\end{frame}
-%
-%\begin{frame}[noframenumbering]{Quotes and graphics}
-%  The Monty Hall problem:
-%  \begin{quote}
-%    Suppose you're on a game show, and you're given the choice of
-%    three doors: Behind one door is a car; behind the others,
-%    goats. You pick a door, say No. 1, and the host, who knows what's
-%    behind the doors, opens another door, say No. 3, which has a
-%    goat. He then says to you, "Do you want to pick door No. 2?" Is it
-%    to your advantage to switch your choice?
-%
-%    \hfill{\em \cite{vosSavant1990monty}}
-%  \end{quote}
-%  \begin{center}
-%    \includegraphics[height=2cm]{img/monty/Monty_open_door}
-%  \end{center}
-%\end{frame}
-
-
-%%% Bibliography
-
-%\bibliography{monty,biblio}
-%\bibliographystyle{apalike}
-
 \end{document}
-
-
